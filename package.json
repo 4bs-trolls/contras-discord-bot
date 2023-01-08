@@ -1,0 +1,17 @@
+{
+  "name": "contras-discord-bot",
+  "version": "1.0.0",
+  "description": "Discord Bot for Coindexter Contra's Discord server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Forrest McIntyre",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.7.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.31.0"
+  }
+}
