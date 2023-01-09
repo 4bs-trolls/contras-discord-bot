@@ -25,7 +25,6 @@ module.exports = {
 		.setDefaultMemberPermissions('0'),
 	async autocomplete(interaction) {
 		const focusedValue = interaction.options.getFocused();
-		console.log(focusedValue);
 		const choices = [
 			'4Bs Tavern',
 			'8-bit Arcade Bar',
