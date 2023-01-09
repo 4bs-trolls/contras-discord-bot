@@ -15,6 +15,7 @@ module.exports = {
 			option
 				.setName('venue')
 				.setDescription('Venue of the match')
+				.setAutocomplete(true)
 				.setRequired(true))
 		.addStringOption(option =>
 			option
@@ -22,6 +23,34 @@ module.exports = {
 				.setDescription('3 letter code, as determined by MNP, for the team we are up against this week. i.e. CDC for Contras')
 				.setRequired(true))
 		.setDefaultMemberPermissions('0'),
+	async autocomplete(interaction) {
+		const focusedValue = interaction.options.getFocused();
+		console.log(focusedValue);
+		const choices = [
+			'4Bs Tavern',
+			'8-bit Arcade Bar',
+			'Add-a-Ball',
+			'Admiral Pub',
+			'Another Castle',
+			'Coindexter\'s',
+			'Corner Pocket Billiards and Lounge',
+			'Georgetown Pizza and Arcade',
+			'Hounds Tooth',
+			'Ice Box',
+			'Jupiter',
+			'Kraken',
+			'Olaf\'s',
+			'Raygun Lounge',
+			'Seattle Tavern and Pool Hall',
+			'Shorty\'s',
+			'Time Warp',
+			'Touchdown',
+			'Waterland'];
+		const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+		await interaction.respond(
+			filtered.map(choice => ({ name: choice, value: choice })),
+		);
+	},
 	async execute(interaction) {
 		const date = interaction.options.getString('date');
 		const venue = interaction.options.getString('venue');
