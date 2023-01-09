@@ -4,7 +4,7 @@ const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('this-week')
+		.setName('next-match')
 		.setDescription('View this week\'s match details'),
 	async execute(interaction) {
 		let message = '';
