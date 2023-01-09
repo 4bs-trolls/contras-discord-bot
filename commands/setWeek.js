@@ -1,3 +1,5 @@
+const fs = require('node:fs');
+const path = require('node:path');
 const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
@@ -20,10 +22,13 @@ module.exports = {
 				.setDescription('3 letter code, as determined by MNP, for the team we are up against this week. i.e. CDC for Contras')
 				.setRequired(true)),
 	async execute(interaction) {
+		const date = interaction.options.getString('date');
+		const venue = interaction.options.getString('venue');
 
 		const aTeamCode = interaction.options.getString('team');
 		const aTeamCodeFormatted = aTeamCode.toUpperCase();
 		let team = '';
+		let message = '';
 
 		// TODO: Add 'The B Team' and 'Neuromancers' to this list and use autocomplete
 		switch (aTeamCodeFormatted) {
@@ -58,8 +63,22 @@ module.exports = {
 		default: team = aTeamCode; break;
 		}
 
-		// TODO: Handle saving off Date/Venue/Team, then respond based upon the success/failure
-		const message = 'This week has been set to:\n\n`Date:` *' + interaction.options.getString('date') + '* \n`Venue:` *' + interaction.options.getString('venue') + '* \n`Team:` *' + team + '*';
+		try {
+			const variablesJson = path.join('./', 'data', 'variables.json');
+			// eslint-disable-next-line prefer-const
+			let data = JSON.parse(fs.readFileSync(variablesJson));
+
+			data.thisWeek.team = team;
+			data.thisWeek.venue = venue;
+			data.thisWeek.date = date;
+
+			const jsonData = JSON.stringify(data);
+			fs.writeFileSync(variablesJson, jsonData);
+
+			message = 'This week has been set to:\n\n`Date:` *' + date + '* \n`Venue:` *' + venue + '* \n`Team:` *' + team + '*';
+		} catch (e) {
+			message = 'Failed to set and save this week\'s data due to: ' + e;
+		}
 
 		await interaction.reply(message);
 	},
