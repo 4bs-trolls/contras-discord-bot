@@ -2,9 +2,9 @@
 
 A Discord bot for the [Coindexter Contras](https://www.mondaynightpinball.com/teams/CDC) team in the [Seattle Monday Night Pinball](https://www.mondaynightpinball.com/) league.
 
-Captain Commands:
-`<this space intentionally left blank>`
+Captain Commands:  
+`/set-week` - to be used by **Captains/Admins** to set the upcoming match's Date, Venue, and Team
 
-User Commands:
-`<this space intentionally left blank>`
+User Commands:  
+`/this-week` - for use by **anyone** on the server to retrieve the Date, Venue, and Team for the upcoming match
 
