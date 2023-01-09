@@ -6,5 +6,5 @@ Captain Commands:
 `/set-week` - to be used by **Captains/Admins** to set the upcoming match's Date, Venue, and Team
 
 User Commands:  
-`/this-week` - for use by **anyone** on the server to retrieve the Date, Venue, and Team for the upcoming match
+`/next-match` - for use by **anyone** on the server to retrieve the Date, Venue, and Team for the upcoming match
 
