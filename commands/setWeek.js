@@ -20,7 +20,8 @@ module.exports = {
 			option
 				.setName('team')
 				.setDescription('3 letter code, as determined by MNP, for the team we are up against this week. i.e. CDC for Contras')
-				.setRequired(true)),
+				.setRequired(true))
+		.setDefaultMemberPermissions('0'),
 	async execute(interaction) {
 		const date = interaction.options.getString('date');
 		const venue = interaction.options.getString('venue');
