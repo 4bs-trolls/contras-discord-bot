@@ -93,13 +93,13 @@ module.exports = {
 		}
 
 		try {
-			const variablesJson = path.join('./', 'data', 'variables.json');
+			const variablesJson = path.join('./', 'data', 'next-match.json');
 			// eslint-disable-next-line prefer-const
 			let data = JSON.parse(fs.readFileSync(variablesJson));
 
-			data.thisWeek.team = team;
-			data.thisWeek.venue = venue;
-			data.thisWeek.date = date;
+			data.team = team;
+			data.venue = venue;
+			data.date = date;
 
 			const jsonData = JSON.stringify(data);
 			fs.writeFileSync(variablesJson, jsonData);

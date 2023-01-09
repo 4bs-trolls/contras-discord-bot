@@ -8,14 +8,14 @@ module.exports = {
 		.setDescription('View this week\'s match details'),
 	async execute(interaction) {
 		let message = '';
-		const variablesJson = path.join('./', 'data', 'variables.json');
+		const variablesJson = path.join('./', 'data', 'next-match.json');
 		try {
 			const data = fs.readFileSync(variablesJson);
-			const variables = JSON.parse(data);
+			const thisWeek = JSON.parse(data);
 
-			const date = variables.thisWeek.date;
-			const venue = variables.thisWeek.venue;
-			const team = variables.thisWeek.team;
+			const date = thisWeek.date;
+			const venue = thisWeek.venue;
+			const team = thisWeek.team;
 
 			message = 'This week\'s match is:\n\n`Date:` *' + date + '* \n`Venue:` *' + venue + '* \n`Team:` *' + team + '*';
 		} catch (e) {
