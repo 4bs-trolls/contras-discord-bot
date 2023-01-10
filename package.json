@@ -11,6 +11,7 @@
   "author": "Forrest McIntyre",
   "license": "ISC",
   "dependencies": {
+    "common-tags": "^1.8.2",
     "discord.js": "^14.7.1"
   },
   "devDependencies": {
