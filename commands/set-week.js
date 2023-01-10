@@ -94,8 +94,7 @@ module.exports = {
 
 		try {
 			const variablesJson = path.join('./', 'data', 'next-match.json');
-			// eslint-disable-next-line prefer-const
-			let data = JSON.parse(fs.readFileSync(variablesJson));
+			const data = JSON.parse(fs.readFileSync(variablesJson));
 
 			data.team = team;
 			data.venue = venue;
@@ -104,7 +103,7 @@ module.exports = {
 			const jsonData = JSON.stringify(data);
 			fs.writeFileSync(variablesJson, jsonData);
 
-			message = 'This week has been set to:\n\n`Date:` *' + date + '* \n`Venue:` *' + venue + '* \n`Team:` *' + team + '*';
+			message = `This week has been set to:\n\n\`Date:\` *${date}* \n\`Venue:\` *${venue}* \n\`Team:\` *${team}*`;
 		} catch (e) {
 			message = 'Failed to set and save this week\'s data due to: ' + e;
 		}
