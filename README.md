@@ -7,4 +7,4 @@ Captain Commands:
 
 User Commands:  
 `/next-match` - for use by **anyone** on the server to retrieve the Date, Venue, and Team for the upcoming match
-
+`/links` - returns a set of helpful links 
