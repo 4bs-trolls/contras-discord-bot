@@ -5,7 +5,7 @@
   "main": "bot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node .",
+    "start": "pm2 start bot.js --name \"Contras Bot\" --watch",
     "lint": "eslint ."
   },
   "author": "Forrest McIntyre",
