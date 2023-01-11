@@ -1,0 +1,12 @@
+{
+	"prod": {
+		"annoucements": "",
+		"attendance": "",
+		"subs-needed": ""
+	},
+	"dev": {
+		"annoucements": "",
+		"attendance": "",
+		"subs-needed": ""
+	}
+}
