@@ -1,4 +1,8 @@
+#node modules
 node_modules
+#env variables
 .env
 config.json
+channels.json
+#vscode debug config
 .vscode/launch.json
