@@ -1,6 +1,6 @@
-# contra-discord-bot
+# coindexter-contra-discord
 
-A Discord bot for the [Coindexter Contras](https://www.mondaynightpinball.com/teams/CDC) team in the [Seattle Monday Night Pinball](https://www.mondaynightpinball.com/) league.
+A Discord bot for the [Coindexter Contras](https://www.mondaynightpinball.com/teams/CDC) team in the [Seattle Monday Night Pinball](https://www.mondaynightpinball.com/) league written by [Forrest McIntyre](https://github.com/ForrestMcIntyre)
 
 Captain Commands:  
 `/set-week` is used to set the upcoming match's Date, Venue, and Team  
