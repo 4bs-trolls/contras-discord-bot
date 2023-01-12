@@ -1,3 +1,4 @@
+const { prod, dev } = require('./../channels.json');
 const { Events, EmbedBuilder } = require('discord.js');
 
 module.exports = {
@@ -18,7 +19,15 @@ module.exports = {
 				console.error(error);
 			}
 		} else if (interaction.isButton()) {
-			const attendanceChannel = interaction.client.channels.cache.get('1055572161185730652');
+			let attendanceChannel;
+			let subsChannel;
+			if (interaction.guildId === dev.id) {
+				attendanceChannel = interaction.client.channels.cache.get(dev.attendance);
+				subsChannel = interaction.client.channels.cache.get(dev.subs);
+			} else {
+				attendanceChannel = interaction.client.channels.cache.get(prod.attendance);
+				subsChannel = interaction.client.channels.cache.get(prod.subs);
+			}
 			const embed = interaction.message.embeds[0];
 			let newEmbed;
 			let attendanceMessage;
@@ -33,7 +42,7 @@ module.exports = {
 					newEmbed = EmbedBuilder.from(embed).addFields({ name: interaction.member.nickname, value: 'needs a sub!' });
 				}
 				await interaction.reply({ content: 'We will find you a sub :smile:', ephemeral: true });
-				attendanceMessage = interaction.member.nickname + ' is unable to make it this week. You might want to run `/subs` in <#1059182204237918248>';
+				attendanceMessage = interaction.member.nickname + ' is unable to make it this week. You might want to run `/subs` in <#' + subsChannel + '>';
 			} else if (interaction.customId === 'subs-accept') {
 				await interaction.reply({ content: 'Thanks for volunteering! We appreciate it :smile:', ephemeral: true });
 				attendanceMessage = interaction.member.nickname + ' wants to sub! We should let them know if we are already full';

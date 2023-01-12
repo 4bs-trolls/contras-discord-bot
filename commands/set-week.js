@@ -94,13 +94,7 @@ module.exports = {
 
 		try {
 			const variablesJson = path.join('./', 'data', 'next-match.json');
-			const data = JSON.parse(fs.readFileSync(variablesJson));
-
-			data.team = team;
-			data.venue = venue;
-			data.date = date;
-
-			const jsonData = JSON.stringify(data);
+			const jsonData = JSON.stringify({ team, venue, date });
 			fs.writeFileSync(variablesJson, jsonData);
 
 			message = `This week has been set to:\n\n\`Date:\` *${date}* \n\`Venue:\` *${venue}* \n\`Team:\` *${team}*`;

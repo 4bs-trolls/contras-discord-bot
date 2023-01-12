@@ -1,5 +1,5 @@
-const fs = require('node:fs');
-const path = require('node:path');
+const { prod, dev } = require('./../channels.json');
+const { team, venue, date } = require('./../data/next-match.json');
 const { SlashCommandBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder } = require('discord.js');
 
 module.exports = {
@@ -8,23 +8,13 @@ module.exports = {
 		.setDescription('Run a sub rollcall for this week\'s pinball match')
 		.setDefaultMemberPermissions('0'),
 	async execute(interaction) {
-		const subsChannel = interaction.client.channels.cache.get('1059182204237918248');
-		const variablesJson = path.join('./', 'data', 'next-match.json');
-
-		let date;
-		let venue;
-		let team;
-
-		try {
-			const data = fs.readFileSync(variablesJson);
-			const thisWeek = JSON.parse(data);
-
-			date = thisWeek.date;
-			venue = thisWeek.venue;
-			team = thisWeek.team;
-		} catch (e) {
-			console.error(e);
+		let subsChannel;
+		if (interaction.guildId === dev.id) {
+			subsChannel = interaction.client.channels.cache.get(dev.subs);
+		} else {
+			subsChannel = interaction.client.channels.cache.get(prod.subs);
 		}
+
 		const replyButtons = new ActionRowBuilder()
 			.addComponents(
 				new ButtonBuilder()

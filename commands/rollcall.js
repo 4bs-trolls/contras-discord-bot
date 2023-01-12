@@ -1,5 +1,5 @@
-const fs = require('node:fs');
-const path = require('node:path');
+const { prod, dev } = require('./../channels.json');
+const { team, venue, date } = require('./../data/next-match.json');
 const { SlashCommandBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
@@ -8,23 +8,14 @@ module.exports = {
 		.setDescription('Run a rollcall for this week\'s pinball match')
 		.setDefaultMemberPermissions('0'),
 	async execute(interaction) {
-		const attendanceChannel = interaction.client.channels.cache.get('1055572161185730652');
-		const annoucementsChannel = interaction.client.channels.cache.get('1055571992658587658');
-		const variablesJson = path.join('./', 'data', 'next-match.json');
-
-		let date;
-		let venue;
-		let team;
-
-		try {
-			const data = fs.readFileSync(variablesJson);
-			const thisWeek = JSON.parse(data);
-
-			date = thisWeek.date;
-			venue = thisWeek.venue;
-			team = thisWeek.team;
-		} catch (e) {
-			console.error(e);
+		let annoucementsChannel;
+		let attendanceChannel;
+		if (interaction.guildId === dev.id) {
+			annoucementsChannel = interaction.client.channels.cache.get(dev.annoucements);
+			attendanceChannel = interaction.client.channels.cache.get(dev.attendance);
+		} else {
+			annoucementsChannel = interaction.client.channels.cache.get(prod.annoucements);
+			attendanceChannel = interaction.client.channels.cache.get(prod.attendance);
 		}
 		const replyButtons = new ActionRowBuilder()
 			.addComponents(
