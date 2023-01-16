@@ -19,15 +19,7 @@ module.exports = {
 				console.error(error);
 			}
 		} else if (interaction.isButton()) {
-			let attendanceChannel;
-			let subsChannel;
-			if (interaction.guildId === dev.id) {
-				attendanceChannel = interaction.client.channels.cache.get(dev.attendance);
-				subsChannel = interaction.client.channels.cache.get(dev.subs);
-			} else {
-				attendanceChannel = interaction.client.channels.cache.get(prod.attendance);
-				subsChannel = interaction.client.channels.cache.get(prod.subs);
-			}
+			const { subsChannel, attendanceChannel } = getServerChannels(interaction);
 			const embed = interaction.message.embeds[0];
 			let newEmbed;
 			let attendanceMessage;
@@ -67,3 +59,16 @@ module.exports = {
 		}
 	},
 };
+
+function getServerChannels(interaction) {
+	let attendanceChannel;
+	let subsChannel;
+	if (interaction.guildId === dev.id) {
+		attendanceChannel = interaction.client.channels.cache.get(dev.attendance);
+		subsChannel = interaction.client.channels.cache.get(dev.subs);
+	} else {
+		attendanceChannel = interaction.client.channels.cache.get(prod.attendance);
+		subsChannel = interaction.client.channels.cache.get(prod.subs);
+	}
+	return { subsChannel, attendanceChannel };
+}
