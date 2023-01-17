@@ -21,24 +21,7 @@ module.exports = {
 		} else if (interaction.isButton()) {
 			const { subsChannel, attendanceChannel } = getServerChannels(interaction);
 			const embed = interaction.message.embeds[0];
-			let newEmbed;
-			let attendanceMessage;
-			if (interaction.customId === 'rollcall-accept') {
-				if (embed) {
-					newEmbed = EmbedBuilder.from(embed).addFields({ name: interaction.member.nickname, value: 'is in!' });
-				}
-				await interaction.reply({ content: 'You are in!', ephemeral: true });
-				attendanceMessage = interaction.member.nickname + ' is ready to blast some balls!';
-			} else if (interaction.customId === 'rollcall-decline') {
-				if (embed) {
-					newEmbed = EmbedBuilder.from(embed).addFields({ name: interaction.member.nickname, value: 'needs a sub!' });
-				}
-				await interaction.reply({ content: 'We will find you a sub :smile:', ephemeral: true });
-				attendanceMessage = interaction.member.nickname + ' is unable to make it this week. You might want to run `/subs` in <#' + subsChannel + '>';
-			} else if (interaction.customId === 'subs-accept') {
-				await interaction.reply({ content: 'Thanks for volunteering! We appreciate it :smile:', ephemeral: true });
-				attendanceMessage = interaction.member.nickname + ' wants to sub! We should let them know if we are already full';
-			}
+			const { newEmbed, attendanceMessage } = await getButtonResponse(interaction, embed, subsChannel);
 			if (embed) {
 				await interaction.message.edit({ embeds: [newEmbed] });
 			}
@@ -59,6 +42,28 @@ module.exports = {
 		}
 	},
 };
+
+async function getButtonResponse(interaction, embed, subsChannel) {
+	let newEmbed;
+	let attendanceMessage;
+	if (interaction.customId === 'rollcall-accept') {
+		if (embed) {
+			newEmbed = EmbedBuilder.from(embed).addFields({ name: interaction.member.nickname, value: 'is in!' });
+		}
+		await interaction.reply({ content: 'You are in!', ephemeral: true });
+		attendanceMessage = interaction.member.nickname + ' is ready to blast some balls!';
+	} else if (interaction.customId === 'rollcall-decline') {
+		if (embed) {
+			newEmbed = EmbedBuilder.from(embed).addFields({ name: interaction.member.nickname, value: 'needs a sub!' });
+		}
+		await interaction.reply({ content: 'We will find you a sub :smile:', ephemeral: true });
+		attendanceMessage = interaction.member.nickname + ' is unable to make it this week. You might want to run `/subs` in <#' + subsChannel + '>';
+	} else if (interaction.customId === 'subs-accept') {
+		await interaction.reply({ content: 'Thanks for volunteering! We appreciate it :smile:', ephemeral: true });
+		attendanceMessage = interaction.member.nickname + ' wants to sub! We should let them know if we are already full';
+	}
+	return { newEmbed, attendanceMessage };
+}
 
 function getServerChannels(interaction) {
 	let attendanceChannel;
