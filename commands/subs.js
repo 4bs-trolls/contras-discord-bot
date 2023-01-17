@@ -8,12 +8,7 @@ module.exports = {
 		.setDescription('Run a sub rollcall for this week\'s pinball match')
 		.setDefaultMemberPermissions('0'),
 	async execute(interaction) {
-		let subsChannel;
-		if (interaction.guildId === dev.id) {
-			subsChannel = interaction.client.channels.cache.get(dev.subs);
-		} else {
-			subsChannel = interaction.client.channels.cache.get(prod.subs);
-		}
+		const subsChannel = getSubsChannel(interaction);
 
 		const replyButtons = new ActionRowBuilder()
 			.addComponents(
@@ -27,3 +22,13 @@ module.exports = {
 		await subsChannel.send({ content: `@here Someone is out this week on the normal roster so we could use your help! This week's match is at **${venue}** against **${team}** \n\nIf you would like to sub for the :contras: ontras this week, let us know by tapping the button below!`, components: [replyButtons] });
 	},
 };
+
+function getSubsChannel(interaction) {
+	let subsChannel;
+	if (interaction.guildId === dev.id) {
+		subsChannel = interaction.client.channels.cache.get(dev.subs);
+	} else {
+		subsChannel = interaction.client.channels.cache.get(prod.subs);
+	}
+	return subsChannel;
+}
