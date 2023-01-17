@@ -9,19 +9,22 @@ module.exports = {
 		.setDefaultMemberPermissions('0'),
 	async execute(interaction) {
 		const subsChannel = getSubsChannel(interaction);
-
-		const replyButtons = new ActionRowBuilder()
-			.addComponents(
-				new ButtonBuilder()
-					.setCustomId('subs-accept')
-					.setLabel('Blast some balls!')
-					.setEmoji('1059189786910408714')
-					.setStyle(ButtonStyle.Success),
-			);
+		const acceptButton = getReplyButton();
 		await interaction.reply({ content: `Subs requested for match against **${team}** at **${venue}** on **${date}**`, ephemeral: true });
-		await subsChannel.send({ content: `@here Someone is out this week on the normal roster so we could use your help! This week's match is at **${venue}** against **${team}** \n\nIf you would like to sub for the :contras: ontras this week, let us know by tapping the button below!`, components: [replyButtons] });
+		await subsChannel.send({ content: `@here Someone is out this week on the normal roster so we could use your help! This week's match is at **${venue}** against **${team}** \n\nIf you would like to sub for the :contras: ontras this week, let us know by tapping the button below!`, components: [acceptButton] });
 	},
 };
+
+function getReplyButton() {
+	return new ActionRowBuilder()
+		.addComponents(
+			new ButtonBuilder()
+				.setCustomId('subs-accept')
+				.setLabel('Blast some balls!')
+				.setEmoji('1059189786910408714')
+				.setStyle(ButtonStyle.Success),
+		);
+}
 
 function getSubsChannel(interaction) {
 	let subsChannel;
