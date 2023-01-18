@@ -1,8 +1,11 @@
 #node modules
 node_modules
+
+#vscode debug config
+.vscode/launch.json
+
 #env variables
 .env
 config.json
 channels.json
-#vscode debug config
-.vscode/launch.json
+roles.json
