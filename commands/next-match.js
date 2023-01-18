@@ -5,7 +5,7 @@ const { SlashCommandBuilder } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('next-match')
-		.setDescription('View this week\'s match details'),
+		.setDescription('View the upcoming match details'),
 	async execute(interaction) {
 		let message = '';
 		const variablesJson = path.join('./', 'data', 'next-match.json');
@@ -17,7 +17,7 @@ module.exports = {
 			const venue = thisWeek.venue;
 			const team = thisWeek.team;
 
-			message = 'This week\'s match is:\n\n`Date:` *' + date + '* \n`Venue:` *' + venue + '* \n`Team:` *' + team + '*';
+			message = 'The upcoming match is:\n\n`Date:` *' + date + '* \n`Venue:` *' + venue + '* \n`Team:` *' + team + '*';
 		} catch (e) {
 			message = 'Failed to retrieve this week\'s data';
 		}
