@@ -23,6 +23,7 @@ function getHelpMessage(roles) {
 				**Optional Params [\`ifpa\`, \`match-play\`]:** sets the IFPA/MatchPlay ID(s) for your Discord user
 		\`/server\` returns the name of the server and how many users it has
 		\`/user\` returns the Username of the user who ran the command, and the date/time
+		\`/help\` returns this help message
 	`);
 	if (isCaptain) {
 		message += '\n\n';
