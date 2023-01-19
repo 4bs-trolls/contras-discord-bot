@@ -15,4 +15,4 @@ A Discord bot for the [Coindexter Contras](https://www.mondaynightpinball.com/te
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Optional Params [`ifpa`, `match-play`]:** sets the IFPA/MatchPlay ID for your Discord user  
 `/help` returns a help message to the user with an explanation of all the command similar to this readme  
 `/server` returns the name of the server and how many users it has  
-`/user` returns the Username of the user who ran the command, and the date/time  
+`/user` returns the Username of the user who ran the command, and the date/time they joined the server  
