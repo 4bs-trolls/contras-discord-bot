@@ -19,8 +19,11 @@ function getHelpMessage(roles) {
 	message = stripIndent(`
 		\`/next-match\` will retrieve the Date, Venue, and Team for the upcoming match
 		\`/links\` returns a set of helpful links
+		\`/stats\` returns your IFPA/MatchPlay links if set; always includes the team stats link
+				**Optional Params [\`ifpa\`, \`match-play\`]:** sets the IFPA/MatchPlay ID(s) for your Discord user
 		\`/server\` returns the name of the server and how many users it has
-		\`/user\` returns the Username of the user who ran the command, and the date/time
+		\`/user\` returns the Username of the user who ran the command, and the date/time they joined the server
+		\`/help\` returns this help message
 	`);
 	if (isCaptain) {
 		message += '\n\n';

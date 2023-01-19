@@ -10,4 +10,9 @@ A Discord bot for the [Coindexter Contras](https://www.mondaynightpinball.com/te
 
 **User Commands:**  
 `/next-match` will retrieve the Date, Venue, and Team for the upcoming match  
-`/links` returns a set of helpful links 
+`/links` returns a set of helpful links  
+`/stats` returns your IFPA/MatchPlay links, if set; always includes the team stats link  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Optional Params [`ifpa`, `match-play`]:** sets the IFPA/MatchPlay ID for your Discord user  
+`/help` returns a help message to the user with an explanation of all the command similar to this readme  
+`/server` returns the name of the server and how many users it has  
+`/user` returns the Username of the user who ran the command, and the date/time they joined the server  
