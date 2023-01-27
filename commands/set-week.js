@@ -103,5 +103,6 @@ module.exports = {
 		}
 
 		await interaction.reply(message);
+		process.exit();
 	},
 };
