@@ -26,11 +26,12 @@ module.exports = {
 	async autocomplete(interaction) {
 		const focusedValue = interaction.options.getFocused();
 		const choices = [
-			'4Bs Tavern',
+			'4Bs',
 			'8-bit Arcade Bar',
 			'Add-a-Ball',
 			'Admiral Pub',
 			'Another Castle',
+			'Ballard Smoke Shop',
 			'Coindexter\'s',
 			'Corner Pocket Billiards and Lounge',
 			'Georgetown Pizza and Arcade',
