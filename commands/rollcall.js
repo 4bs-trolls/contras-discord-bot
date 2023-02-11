@@ -21,7 +21,8 @@ function getRollcallEmbed() {
 	return new EmbedBuilder()
 		.setColor('f0791e')
 		.setTitle(`Contras vs ${team}`)
-		.setDescription(`Monday Night Pinball, Week 1 \n ${date} at ${venue}`)
+		// TODO: Turn '2' into a variable that is set in set-week.js
+		.setDescription(`Monday Night Pinball, Week 2 \n ${date} at ${venue}`)
 		.setAuthor({ name: 'Coindexter Contras', iconURL: 'https://i.imgur.com/wS0ZY6f.png' })
 		.setURL('https://www.mondaynightpinball.com/teams/CDC')
 		.setFooter({ text: 'This bot is brought to you by LuckBasedGaming', iconURL: 'https://i.imgur.com/f3E6fEN.png' })
