@@ -26,11 +26,12 @@ module.exports = {
 	async autocomplete(interaction) {
 		const focusedValue = interaction.options.getFocused();
 		const choices = [
-			'4Bs Tavern',
+			'4Bs',
 			'8-bit Arcade Bar',
 			'Add-a-Ball',
 			'Admiral Pub',
 			'Another Castle',
+			'Ballard Smoke Shop',
 			'Coindexter\'s',
 			'Corner Pocket Billiards and Lounge',
 			'Georgetown Pizza and Arcade',
@@ -75,9 +76,10 @@ module.exports = {
 		case 'LAS': team = 'Little League All Stars'; break;
 		case 'RMS': team = 'Magic Saves'; break;
 		case 'JMF': team = 'Middle Flippers'; break;
+		case 'NMC': team = 'Neuromancers'; break;
 		case 'NLT': team = 'Northern Lights'; break;
 		case 'CPO': team = 'Pants Optional'; break;
-		case 'OLD': team = 'Pinballycule'; break;
+		case 'PYC': team = 'Pinballycule'; break;
 		case 'PGN': team = 'Pinguins'; break;
 		case 'PKT': team = 'Pocketeers'; break;
 		case 'PBR': team = 'Point Breakers'; break;
@@ -87,6 +89,7 @@ module.exports = {
 		case 'SSS': team = 'Silverball Slayers'; break;
 		case 'SKP': team = 'Slap Kraken Pop'; break;
 		case 'SWL': team = 'Specials When Lit'; break;
+		case 'TBT': team = 'The B Team'; break;
 		case 'TTT': team = 'The Trailer Trashers'; break;
 		case 'TWC': team = 'The Wrecking Crew'; break;
 		default: team = aTeamCode; break;
@@ -103,5 +106,6 @@ module.exports = {
 		}
 
 		await interaction.reply(message);
+		process.exit();
 	},
 };
