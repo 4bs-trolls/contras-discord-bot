@@ -9,7 +9,8 @@ module.exports = {
 		.addNumberOption(option =>
 			option
 				.setName('week')
-				.setDescription('The week # as determined by MNP schedule'))
+				.setDescription('The week # as determined by MNP schedule')
+				.setRequired(true))
 		.addStringOption(option =>
 			option
 				.setName('date')
