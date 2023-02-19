@@ -22,6 +22,10 @@ module.exports = {
 				.setName('team')
 				.setDescription('3 letter code, as determined by MNP, for the team we are up against this week. i.e. CDC for Contras')
 				.setRequired(true))
+		.addNumberOption(option =>
+			option
+				.setName('week')
+				.setDescription('The week # as determined by MNP schedule'))
 		.setDefaultMemberPermissions('0'),
 	async autocomplete(interaction) {
 		const focusedValue = interaction.options.getFocused();
@@ -54,6 +58,7 @@ module.exports = {
 	async execute(interaction) {
 		const date = interaction.options.getString('date');
 		const venue = interaction.options.getString('venue');
+		const week = interaction.options.getNumber('week');
 
 		const aTeamCode = interaction.options.getString('team');
 		const aTeamCodeFormatted = aTeamCode.toUpperCase();
@@ -97,10 +102,10 @@ module.exports = {
 
 		try {
 			const variablesJson = path.join('./', 'data', 'next-match.json');
-			const jsonData = JSON.stringify({ team, venue, date });
+			const jsonData = JSON.stringify({ week, team, venue, date });
 			fs.writeFileSync(variablesJson, jsonData);
 
-			message = `This week has been set to:\n\n\`Date:\` *${date}* \n\`Venue:\` *${venue}* \n\`Team:\` *${team}*`;
+			message = `This week has been set to:\n\n\`Week:\` *${week}*\n\`Date:\` *${date}* \n\`Venue:\` *${venue}* \n\`Team:\` *${team}*`;
 		} catch (e) {
 			message = 'Failed to set and save this week\'s data due to: ' + e;
 		}
