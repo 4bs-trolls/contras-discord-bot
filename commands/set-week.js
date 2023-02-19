@@ -6,6 +6,10 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('set-week')
 		.setDescription('Set the variables for the current weeks match')
+		.addNumberOption(option =>
+			option
+				.setName('week')
+				.setDescription('The week # as determined by MNP schedule'))
 		.addStringOption(option =>
 			option
 				.setName('date')
@@ -22,10 +26,6 @@ module.exports = {
 				.setName('team')
 				.setDescription('3 letter code, as determined by MNP, for the team we are up against this week. i.e. CDC for Contras')
 				.setRequired(true))
-		.addNumberOption(option =>
-			option
-				.setName('week')
-				.setDescription('The week # as determined by MNP schedule'))
 		.setDefaultMemberPermissions('0'),
 	async autocomplete(interaction) {
 		const focusedValue = interaction.options.getFocused();
