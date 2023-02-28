@@ -66,7 +66,7 @@ module.exports = {
 		let team = '';
 		let message = '';
 
-		// TODO: Add 'The B Team' and 'Neuromancers' to this list and use autocomplete
+		// TODO: use autocomplete
 		switch (aTeamCodeFormatted) {
 		case 'ADB': team = 'Admiraballs'; break;
 		case 'BOC': team = 'Ball of Cthulhu'; break;
