@@ -46,18 +46,21 @@ module.exports = {
 async function getButtonResponse(interaction, embed, subsChannel) {
 	let newEmbed;
 	let attendanceMessage;
+	// rollcall.js accept button
 	if (interaction.customId === 'rollcall-accept') {
 		if (embed) {
 			newEmbed = EmbedBuilder.from(embed).addFields({ name: interaction.member.nickname, value: 'is in!' });
 		}
 		await interaction.reply({ content: 'You are in!', ephemeral: true });
 		attendanceMessage = interaction.member.nickname + ' is ready to blast some balls!';
+	// rollcall.js decline button
 	} else if (interaction.customId === 'rollcall-decline') {
 		if (embed) {
 			newEmbed = EmbedBuilder.from(embed).addFields({ name: interaction.member.nickname, value: 'needs a sub!' });
 		}
 		await interaction.reply({ content: 'We will find you a sub :smile:', ephemeral: true });
 		attendanceMessage = interaction.member.nickname + ' is unable to make it this week. You might want to run `/subs` in <#' + subsChannel + '>';
+	// subs.js accept button
 	} else if (interaction.customId === 'subs-accept') {
 		await interaction.reply({ content: 'Thanks for volunteering! We appreciate it :smile:', ephemeral: true });
 		attendanceMessage = interaction.member.nickname + ' wants to sub! We should let them know if we are already full';
