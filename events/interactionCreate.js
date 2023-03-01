@@ -67,25 +67,30 @@ async function getButtonResponse(interaction, embed, subsChannel) {
 }
 
 async function rollcallDecline(embed, newEmbed, interaction, attendanceMessage, subsChannel) {
+	attendanceMessage = interaction.member.nickname + ' is unable to make it this week. You might want to run `/subs` in <#' + subsChannel + '>';
 	if (embed) {
-		if (userHasResponded(interaction, embed)) {
+		if (userHasRespondedToRollcall(interaction, embed)) {
 			const userField = getIndexOfUserResponse(interaction, embed);
-			newEmbed = embed.spliceFields(userField, 1);
-		} else {
-			newEmbed = EmbedBuilder.from(embed).addFields({ name: interaction.member.nickname, value: 'needs a sub!' });
+			embed.fields.splice(userField, 1);
+			attendanceMessage = interaction.member.nickname + ' has updated their status and is no longer able make it this week. You might want to run `/subs` in <#' + subsChannel + '>';
 		}
+		newEmbed = EmbedBuilder.from(embed).addFields({ name: interaction.member.nickname, value: 'needs a sub!' });
 	}
 	await interaction.reply({ content: 'We will find you a sub :smile:', ephemeral: true });
-	attendanceMessage = interaction.member.nickname + ' is unable to make it this week. You might want to run `/subs` in <#' + subsChannel + '>';
 	return { newEmbed, attendanceMessage };
 }
 
 async function rollcallAccept(embed, newEmbed, interaction, attendanceMessage) {
+	attendanceMessage = interaction.member.nickname + ' is ready to blast some balls!';
 	if (embed) {
+		if (userHasRespondedToRollcall(interaction, embed)) {
+			const userField = getIndexOfUserResponse(interaction, embed);
+			embed.fields.splice(userField, 1);
+			attendanceMessage = interaction.member.nickname + ' has updated their status is now ready to blast some balls! We should make sure we do not already have a sub for them.';
+		}
 		newEmbed = EmbedBuilder.from(embed).addFields({ name: interaction.member.nickname, value: 'is in!' });
 	}
 	await interaction.reply({ content: 'You are in!', ephemeral: true });
-	attendanceMessage = interaction.member.nickname + ' is ready to blast some balls!';
 	return { newEmbed, attendanceMessage };
 }
 
@@ -108,18 +113,19 @@ function isValidButtonInteraction(interaction, embed) {
 		return true;
 	}
 
-	if (userHasResponded(interaction, embed)) {
+	if (userHasRespondedToRollcall(interaction, embed)) {
 		const userIndex = getIndexOfUserResponse(interaction, embed);
-
-		console.log(embed.fields[userIndex]);
-		// add logic to handle user changing their response
-		return true;
+		const suffix = embed.fields[userIndex].value;
+		const sameState = (interaction.customId === 'rollcall-accept' && suffix === 'is in!') || (interaction.customId === 'rollcall-decline' && suffix === 'needs a sub!');
+		if (sameState) {
+			return false;
+		}
 	}
 
 	return true;
 }
 
-function userHasResponded(interaction, embed) {
+function userHasRespondedToRollcall(interaction, embed) {
 	if (getIndexOfUserResponse(interaction, embed) !== -1) {
 		return true;
 	}
