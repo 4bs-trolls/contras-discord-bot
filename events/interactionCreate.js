@@ -52,13 +52,10 @@ async function getButtonResponse(interaction, embed, subsChannel) {
 	if (!isValidButtonInteraction(interaction, embed)) {
 		newEmbed = embed;
 		await interaction.reply({ content: 'You have already selected that response for this rollcall', ephemeral: true });
-		// rollcall.js accept button
 	} else if (interaction.customId === 'rollcall-accept') {
 		({ newEmbed, attendanceMessage } = await rollcallAccept(embed, newEmbed, interaction));
-		// rollcall.js decline button
 	} else if (interaction.customId === 'rollcall-decline') {
 		({ newEmbed, attendanceMessage } = await rollcallDecline(embed, newEmbed, interaction, subsChannel));
-		// subs.js accept button
 	} else if (interaction.customId === 'subs-accept') {
 		await interaction.reply({ content: 'Thanks for volunteering! We appreciate it :smile:', ephemeral: true });
 		attendanceMessage = interaction.member.nickname + ' wants to sub! We should let them know if we are already full';
