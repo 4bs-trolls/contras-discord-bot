@@ -52,21 +52,31 @@ async function getButtonResponse(interaction, embed, subsChannel) {
 	if (!isValidButtonInteraction(interaction, embed)) {
 		newEmbed = embed;
 		await interaction.reply({ content: 'You have already responded to this rollcall', ephemeral: true });
-	// rollcall.js accept button
+		// rollcall.js accept button
 	} else if (interaction.customId === 'rollcall-accept') {
 		({ newEmbed, attendanceMessage } = await rollcallAccept(embed, newEmbed, interaction, attendanceMessage));
-	// rollcall.js decline button
+		// rollcall.js decline button
 	} else if (interaction.customId === 'rollcall-decline') {
-		if (embed) {
-			newEmbed = EmbedBuilder.from(embed).addFields({ name: interaction.member.nickname, value: 'needs a sub!' });
-		}
-		await interaction.reply({ content: 'We will find you a sub :smile:', ephemeral: true });
-		attendanceMessage = interaction.member.nickname + ' is unable to make it this week. You might want to run `/subs` in <#' + subsChannel + '>';
-	// subs.js accept button
+		({ newEmbed, attendanceMessage } = await rollcallDecline(embed, newEmbed, interaction, attendanceMessage, subsChannel));
+		// subs.js accept button
 	} else if (interaction.customId === 'subs-accept') {
 		await interaction.reply({ content: 'Thanks for volunteering! We appreciate it :smile:', ephemeral: true });
 		attendanceMessage = interaction.member.nickname + ' wants to sub! We should let them know if we are already full';
 	}
+	return { newEmbed, attendanceMessage };
+}
+
+async function rollcallDecline(embed, newEmbed, interaction, attendanceMessage, subsChannel) {
+	if (embed) {
+		if (userHasResponded(interaction, embed)) {
+			const userField = getIndexOfUserResponse(interaction, embed);
+			newEmbed = embed.spliceFields(userField, 1);
+		} else {
+			newEmbed = EmbedBuilder.from(embed).addFields({ name: interaction.member.nickname, value: 'needs a sub!' });
+		}
+	}
+	await interaction.reply({ content: 'We will find you a sub :smile:', ephemeral: true });
+	attendanceMessage = interaction.member.nickname + ' is unable to make it this week. You might want to run `/subs` in <#' + subsChannel + '>';
 	return { newEmbed, attendanceMessage };
 }
 
@@ -99,8 +109,11 @@ function isValidButtonInteraction(interaction, embed) {
 	}
 
 	if (userHasResponded(interaction, embed)) {
+		const userIndex = getIndexOfUserResponse(interaction, embed);
+
+		console.log(embed.fields[userIndex]);
 		// add logic to handle user changing their response
-		return false;
+		return true;
 	}
 
 	return true;
@@ -108,9 +121,9 @@ function isValidButtonInteraction(interaction, embed) {
 
 function userHasResponded(interaction, embed) {
 	if (getIndexOfUserResponse(interaction, embed) !== -1) {
-		return false;
+		return true;
 	}
-	return true;
+	return false;
 }
 
 function getIndexOfUserResponse(interaction, embed) {
