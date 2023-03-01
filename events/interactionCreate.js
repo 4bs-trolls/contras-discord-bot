@@ -54,10 +54,10 @@ async function getButtonResponse(interaction, embed, subsChannel) {
 		await interaction.reply({ content: 'You have already responded to this rollcall', ephemeral: true });
 		// rollcall.js accept button
 	} else if (interaction.customId === 'rollcall-accept') {
-		({ newEmbed, attendanceMessage } = await rollcallAccept(embed, newEmbed, interaction, attendanceMessage));
+		({ newEmbed, attendanceMessage } = await rollcallAccept(embed, newEmbed, interaction));
 		// rollcall.js decline button
 	} else if (interaction.customId === 'rollcall-decline') {
-		({ newEmbed, attendanceMessage } = await rollcallDecline(embed, newEmbed, interaction, attendanceMessage, subsChannel));
+		({ newEmbed, attendanceMessage } = await rollcallDecline(embed, newEmbed, interaction, subsChannel));
 		// subs.js accept button
 	} else if (interaction.customId === 'subs-accept') {
 		await interaction.reply({ content: 'Thanks for volunteering! We appreciate it :smile:', ephemeral: true });
@@ -66,8 +66,8 @@ async function getButtonResponse(interaction, embed, subsChannel) {
 	return { newEmbed, attendanceMessage };
 }
 
-async function rollcallDecline(embed, newEmbed, interaction, attendanceMessage, subsChannel) {
-	attendanceMessage = interaction.member.nickname + ' is unable to make it this week. You might want to run `/subs` in <#' + subsChannel + '>';
+async function rollcallDecline(embed, newEmbed, interaction, subsChannel) {
+	let attendanceMessage = interaction.member.nickname + ' is unable to make it this week. You might want to run `/subs` in <#' + subsChannel + '>';
 	if (embed) {
 		if (userHasRespondedToRollcall(interaction, embed)) {
 			const userField = getIndexOfUserResponse(interaction, embed);
@@ -80,8 +80,8 @@ async function rollcallDecline(embed, newEmbed, interaction, attendanceMessage, 
 	return { newEmbed, attendanceMessage };
 }
 
-async function rollcallAccept(embed, newEmbed, interaction, attendanceMessage) {
-	attendanceMessage = interaction.member.nickname + ' is ready to blast some balls!';
+async function rollcallAccept(embed, newEmbed, interaction, ) {
+	let attendanceMessage = interaction.member.nickname + ' is ready to blast some balls!';
 	if (embed) {
 		if (userHasRespondedToRollcall(interaction, embed)) {
 			const userField = getIndexOfUserResponse(interaction, embed);
