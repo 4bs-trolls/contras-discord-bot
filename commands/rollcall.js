@@ -13,7 +13,7 @@ module.exports = {
 		const embed = getRollcallEmbed();
 		await interaction.reply({ content: 'Rollcall initiated', ephemeral: true });
 		await attendanceChannel.send({ content: `----------------**ATTENDANCE**----------------\nBelow are attendance records for the match against **${team}** on **${date}**\n -----------------------------------------------` });
-		await annoucementsChannel.send({ content: '@everyone It is that time again! Please use the buttons below to let us know your availability for Week ${week} as soon as you can... \n\n**_Please_ only select 1 option**\n\n', embeds: [embed], components: [replyButtons] });
+		await annoucementsChannel.send({ content: `@everyone It is that time again! Please use the buttons below to let us know your availability for Week ${week} as soon as you can... \n\n**_Please_ only select 1 option**\n\n`, embeds: [embed], components: [replyButtons] });
 	},
 };
 
