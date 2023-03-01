@@ -54,11 +54,7 @@ async function getButtonResponse(interaction, embed, subsChannel) {
 		await interaction.reply({ content: 'You have already responded to this rollcall', ephemeral: true });
 	// rollcall.js accept button
 	} else if (interaction.customId === 'rollcall-accept') {
-		if (embed) {
-			newEmbed = EmbedBuilder.from(embed).addFields({ name: interaction.member.nickname, value: 'is in!' });
-		}
-		await interaction.reply({ content: 'You are in!', ephemeral: true });
-		attendanceMessage = interaction.member.nickname + ' is ready to blast some balls!';
+		({ newEmbed, attendanceMessage } = await rollcallAccept(embed, newEmbed, interaction, attendanceMessage));
 	// rollcall.js decline button
 	} else if (interaction.customId === 'rollcall-decline') {
 		if (embed) {
@@ -71,6 +67,15 @@ async function getButtonResponse(interaction, embed, subsChannel) {
 		await interaction.reply({ content: 'Thanks for volunteering! We appreciate it :smile:', ephemeral: true });
 		attendanceMessage = interaction.member.nickname + ' wants to sub! We should let them know if we are already full';
 	}
+	return { newEmbed, attendanceMessage };
+}
+
+async function rollcallAccept(embed, newEmbed, interaction, attendanceMessage) {
+	if (embed) {
+		newEmbed = EmbedBuilder.from(embed).addFields({ name: interaction.member.nickname, value: 'is in!' });
+	}
+	await interaction.reply({ content: 'You are in!', ephemeral: true });
+	attendanceMessage = interaction.member.nickname + ' is ready to blast some balls!';
 	return { newEmbed, attendanceMessage };
 }
 
