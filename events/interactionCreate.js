@@ -51,7 +51,7 @@ async function getButtonResponse(interaction, embed, subsChannel) {
 	// ignore interaction if user has already responded with the same status
 	if (!isValidButtonInteraction(interaction, embed)) {
 		newEmbed = embed;
-		await interaction.reply({ content: 'You have already responded to this rollcall', ephemeral: true });
+		await interaction.reply({ content: 'You have already selected that response for this rollcall', ephemeral: true });
 		// rollcall.js accept button
 	} else if (interaction.customId === 'rollcall-accept') {
 		({ newEmbed, attendanceMessage } = await rollcallAccept(embed, newEmbed, interaction));
