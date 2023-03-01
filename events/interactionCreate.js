@@ -25,7 +25,9 @@ module.exports = {
 			if (embed) {
 				await interaction.message.edit({ embeds: [newEmbed] });
 			}
-			await attendanceChannel.send(attendanceMessage);
+			if (attendanceMessage) {
+				await attendanceChannel.send(attendanceMessage);
+			}
 		} else if (interaction.isAutocomplete()) {
 			const command = interaction.client.commands.get(interaction.commandName);
 
@@ -46,8 +48,12 @@ module.exports = {
 async function getButtonResponse(interaction, embed, subsChannel) {
 	let newEmbed;
 	let attendanceMessage;
+	// ignore interaction if user has already responded
+	if (!isValidButtonInteraction(interaction, embed)) {
+		newEmbed = embed;
+		await interaction.reply({ content: 'You have already responded to this rollcall', ephemeral: true });
 	// rollcall.js accept button
-	if (interaction.customId === 'rollcall-accept') {
+	} else if (interaction.customId === 'rollcall-accept') {
 		if (embed) {
 			newEmbed = EmbedBuilder.from(embed).addFields({ name: interaction.member.nickname, value: 'is in!' });
 		}
@@ -80,3 +86,23 @@ function getServerChannels(interaction) {
 	}
 	return { subsChannel, attendanceChannel };
 }
+
+function isValidButtonInteraction(interaction, embed) {
+	if (!embed) {
+		return true;
+	}
+
+	console.log(`fields: ${embed.data.fields}`);
+	const fields = embed.data.fields;
+	const user = interaction.member.nickname;
+
+	if (fields) {
+		for (let i = 0; i < fields.length; i++) {
+			if (fields[i].name === user) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
