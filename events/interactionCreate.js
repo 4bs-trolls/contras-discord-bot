@@ -102,12 +102,19 @@ function isValidButtonInteraction(interaction, embed) {
 }
 
 function userHasResponded(interaction, embed) {
+	if (getIndexOfUserResponse(interaction, embed) !== -1) {
+		return false;
+	}
+	return true;
+}
+
+function getIndexOfUserResponse(interaction, embed) {
 	const fields = embed.fields;
 	for (let i = 0; i < fields.length; i++) {
 		if (fields[i].name === interaction.member.nickname) {
-			return true;
+			return i;
 		}
 	}
-	return false;
+	return -1;
 }
 
