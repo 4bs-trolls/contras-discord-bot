@@ -48,7 +48,7 @@ module.exports = {
 async function getButtonResponse(interaction, embed, subsChannel) {
 	let newEmbed;
 	let attendanceMessage;
-	// ignore interaction if user has already responded
+	// ignore interaction if user has already responded with the same status
 	if (!isValidButtonInteraction(interaction, embed)) {
 		newEmbed = embed;
 		await interaction.reply({ content: 'You have already responded to this rollcall', ephemeral: true });
@@ -89,20 +89,25 @@ function getServerChannels(interaction) {
 
 function isValidButtonInteraction(interaction, embed) {
 	if (!embed) {
+		// subs.js accept button
 		return true;
 	}
 
-	console.log(`fields: ${embed.data.fields}`);
-	const fields = embed.data.fields;
-	const user = interaction.member.nickname;
+	if (userHasResponded(interaction, embed)) {
+		// add logic to handle user changing their response
+		return false;
+	}
 
-	if (fields) {
-		for (let i = 0; i < fields.length; i++) {
-			if (fields[i].name === user) {
-				return false;
-			}
+	return true;
+}
+
+function userHasResponded(interaction, embed) {
+	const fields = embed.fields;
+	for (let i = 0; i < fields.length; i++) {
+		if (fields[i].name === interaction.member.nickname) {
+			return true;
 		}
 	}
-	return true;
+	return false;
 }
 
