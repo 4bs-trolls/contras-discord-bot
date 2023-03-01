@@ -80,7 +80,7 @@ async function rollcallDecline(embed, newEmbed, interaction, subsChannel) {
 	return { newEmbed, attendanceMessage };
 }
 
-async function rollcallAccept(embed, newEmbed, interaction, ) {
+async function rollcallAccept(embed, newEmbed, interaction) {
 	let attendanceMessage = interaction.member.nickname + ' is ready to blast some balls!';
 	if (embed) {
 		if (userHasRespondedToRollcall(interaction, embed)) {
