@@ -1,4 +1,3 @@
-const { prod, dev } = require('./../channels.json');
 const { team, venue, date } = require('./../data/next-match.json');
 const { SlashCommandBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder } = require('discord.js');
 
@@ -8,7 +7,7 @@ module.exports = {
 		.setDescription('Run a sub rollcall for this week\'s pinball match')
 		.setDefaultMemberPermissions('0'),
 	async execute(interaction) {
-		const subsChannel = getSubsChannel(interaction);
+		const subsChannel = getSubsChannel();
 		const acceptButton = getReplyButton();
 		await interaction.reply({ content: `Subs requested for match against **${team}** at **${venue}** on **${date}**`, ephemeral: true });
 		await subsChannel.send({ content: `@here Someone is out this week on the normal roster so we could use your help! The upcoming match is on **${date}** at **${venue}** against **${team}** \n\nIf you would like to sub for the :contras: ontras this week, let us know by tapping the button below!`, components: [acceptButton] });
@@ -26,12 +25,7 @@ function getReplyButton() {
 		);
 }
 
-function getSubsChannel(interaction) {
-	let subsChannel;
-	if (interaction.guildId === dev.id) {
-		subsChannel = interaction.client.channels.cache.get(dev.subs);
-	} else {
-		subsChannel = interaction.client.channels.cache.get(prod.subs);
-	}
-	return subsChannel;
+function getSubsChannel() {
+
+	return process.env.SUBS_CHANNEL_ID;
 }
