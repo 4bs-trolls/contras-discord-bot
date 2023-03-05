@@ -7,7 +7,7 @@ module.exports = {
 		.setDescription('Run a sub rollcall for this week\'s pinball match')
 		.setDefaultMemberPermissions('0'),
 	async execute(interaction) {
-		const subsChannel = getSubsChannel();
+		const subsChannel = getSubsChannel(interaction);
 		const acceptButton = getReplyButton();
 		await interaction.reply({ content: `Subs requested for match against **${team}** at **${venue}** on **${date}**`, ephemeral: true });
 		await subsChannel.send({ content: `@here Someone is out this week on the normal roster so we could use your help! The upcoming match is on **${date}** at **${venue}** against **${team}** \n\nIf you would like to sub for the :contras: ontras this week, let us know by tapping the button below!`, components: [acceptButton] });
@@ -25,7 +25,7 @@ function getReplyButton() {
 		);
 }
 
-function getSubsChannel() {
-
-	return process.env.SUBS_CHANNEL_ID;
+function getSubsChannel(interaction) {
+	const subsChannel = interaction.client.channels.cache.get(process.env.SUBS_CHANNEL_ID);
+	return subsChannel;
 }
