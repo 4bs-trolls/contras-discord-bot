@@ -7,7 +7,7 @@ module.exports = {
 		.setDescription('Run a rollcall for this week\'s pinball match')
 		.setDefaultMemberPermissions('0'),
 	async execute(interaction) {
-		const { attendanceChannel, annoucementsChannel } = getRollcallChannels();
+		const { attendanceChannel, annoucementsChannel } = getRollcallChannels(interaction);
 		const replyButtons = getReplyButtons();
 		const embed = getRollcallEmbed();
 		await interaction.reply({ content: 'Rollcall initiated', ephemeral: true });
@@ -42,8 +42,8 @@ function getReplyButtons() {
 		);
 }
 
-function getRollcallChannels() {
-	const annoucementsChannel = process.env.ANNOUNCEMENTS_CHANNEL_ID;
-	const attendanceChannel = process.env.ATTENDANCE_CHANNEL_ID;
+function getRollcallChannels(interaction) {
+	const attendanceChannel = interaction.client.channels.cache.get(process.env.ATTENDANCE_CHANNEL_ID);
+	const annoucementsChannel = interaction.client.channels.cache.get(process.env.ANNOUNCEMENTS_CHANNEL_ID);
 	return { attendanceChannel, annoucementsChannel };
 }
