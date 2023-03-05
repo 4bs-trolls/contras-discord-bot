@@ -1,5 +1,6 @@
 const { REST, Routes } = require('discord.js');
-const { clientId, token } = require('./config.json');
+const clientId = process.env.CLIENT_ID;
+const token = process.env.TOKEN;
 const fs = require('node:fs');
 
 const commands = [];
@@ -20,13 +21,7 @@ const rest = new REST({ version: '10' }).setToken(token);
 	try {
 		console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
-		// The put method is used to fully refresh all commands in the guild with the current set
-		// DEVELOPMENT:
-		// const data = await rest.put(
-		// 	Routes.applicationGuildCommands(clientId, guildId),
-		// 	{ body: commands },
-		// );
-		// PRODUCTION:
+		// This put method is used to fully refresh all commands in the application with the current set
 		const data = await rest.put(
 			Routes.applicationCommands(clientId),
 			{ body: commands },
