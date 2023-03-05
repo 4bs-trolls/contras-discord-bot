@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { captain } = require('../roles.json');
+const captain = process.env.CAPTAIN_ROLE_ID;
 const { stripIndent } = require('common-tags');
 
 module.exports = {
