@@ -1,4 +1,3 @@
-const { prod, dev } = require('./../channels.json');
 const { team, venue, date, week } = require('./../data/next-match.json');
 const { SlashCommandBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder, EmbedBuilder } = require('discord.js');
 
@@ -8,7 +7,7 @@ module.exports = {
 		.setDescription('Run a rollcall for this week\'s pinball match')
 		.setDefaultMemberPermissions('0'),
 	async execute(interaction) {
-		const { attendanceChannel, annoucementsChannel } = getRollcallChannels(interaction);
+		const { attendanceChannel, annoucementsChannel } = getRollcallChannels();
 		const replyButtons = getReplyButtons();
 		const embed = getRollcallEmbed();
 		await interaction.reply({ content: 'Rollcall initiated', ephemeral: true });
@@ -43,15 +42,8 @@ function getReplyButtons() {
 		);
 }
 
-function getRollcallChannels(interaction) {
-	let annoucementsChannel;
-	let attendanceChannel;
-	if (interaction.guildId === dev.id) {
-		annoucementsChannel = interaction.client.channels.cache.get(dev.annoucements);
-		attendanceChannel = interaction.client.channels.cache.get(dev.attendance);
-	} else {
-		annoucementsChannel = interaction.client.channels.cache.get(prod.annoucements);
-		attendanceChannel = interaction.client.channels.cache.get(prod.attendance);
-	}
+function getRollcallChannels() {
+	const annoucementsChannel = process.env.ANNOUNCEMENTS_CHANNEL_ID;
+	const attendanceChannel = process.env.ATTENDANCE_CHANNEL_ID;
 	return { attendanceChannel, annoucementsChannel };
 }
