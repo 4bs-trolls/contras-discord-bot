@@ -1,4 +1,3 @@
-const { prod, dev } = require('./../channels.json');
 const { team, venue, date, week } = require('./../data/next-match.json');
 const { SlashCommandBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder, EmbedBuilder } = require('discord.js');
 
@@ -44,14 +43,7 @@ function getReplyButtons() {
 }
 
 function getRollcallChannels(interaction) {
-	let annoucementsChannel;
-	let attendanceChannel;
-	if (interaction.guildId === dev.id) {
-		annoucementsChannel = interaction.client.channels.cache.get(dev.annoucements);
-		attendanceChannel = interaction.client.channels.cache.get(dev.attendance);
-	} else {
-		annoucementsChannel = interaction.client.channels.cache.get(prod.annoucements);
-		attendanceChannel = interaction.client.channels.cache.get(prod.attendance);
-	}
+	const attendanceChannel = interaction.client.channels.cache.get(process.env.ATTENDANCE_CHANNEL_ID);
+	const annoucementsChannel = interaction.client.channels.cache.get(process.env.ANNOUNCEMENTS_CHANNEL_ID);
 	return { attendanceChannel, annoucementsChannel };
 }

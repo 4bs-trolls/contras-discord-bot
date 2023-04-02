@@ -1,9 +1,13 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+// load .env file
+const dotenv = require('dotenv');
+dotenv.config();
+
 // Require the necessary discord.js classes
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
-const { token } = require('./config.json');
+const token = process.env.TOKEN;
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
