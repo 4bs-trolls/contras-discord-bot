@@ -1,4 +1,3 @@
-const { prod, dev } = require('./../channels.json');
 const { team, venue, date } = require('./../data/next-match.json');
 const { SlashCommandBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder } = require('discord.js');
 
@@ -27,11 +26,6 @@ function getReplyButton() {
 }
 
 function getSubsChannel(interaction) {
-	let subsChannel;
-	if (interaction.guildId === dev.id) {
-		subsChannel = interaction.client.channels.cache.get(dev.subs);
-	} else {
-		subsChannel = interaction.client.channels.cache.get(prod.subs);
-	}
+	const subsChannel = interaction.client.channels.cache.get(process.env.SUBS_CHANNEL_ID);
 	return subsChannel;
 }

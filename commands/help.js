@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { captain } = require('../roles.json');
+const captain = process.env.CAPTAIN_ROLE_ID;
 const { stripIndent } = require('common-tags');
 
 module.exports = {
@@ -15,7 +15,7 @@ module.exports = {
 
 function getHelpMessage(roles) {
 	let message;
-	const isCaptain = captain.some(x => roles.some(y => y === x));
+	const isCaptain = roles.some(x => x === captain);
 	message = stripIndent(`
 		\`/next-match\` will retrieve the Date, Venue, and Team for the upcoming match
 		\`/links\` returns a set of helpful links

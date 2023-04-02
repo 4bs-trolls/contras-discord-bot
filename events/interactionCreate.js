@@ -1,4 +1,3 @@
-const { prod, dev } = require('./../channels.json');
 const { Events, EmbedBuilder } = require('discord.js');
 
 module.exports = {
@@ -92,15 +91,8 @@ async function rollcallAccept(embed, newEmbed, interaction) {
 }
 
 function getServerChannels(interaction) {
-	let attendanceChannel;
-	let subsChannel;
-	if (interaction.guildId === dev.id) {
-		attendanceChannel = interaction.client.channels.cache.get(dev.attendance);
-		subsChannel = interaction.client.channels.cache.get(dev.subs);
-	} else {
-		attendanceChannel = interaction.client.channels.cache.get(prod.attendance);
-		subsChannel = interaction.client.channels.cache.get(prod.subs);
-	}
+	const attendanceChannel = interaction.client.channels.cache.get(process.env.ATTENDANCE_CHANNEL_ID);
+	const subsChannel = interaction.client.channels.cache.get(process.env.SUBS_CHANNEL_ID);
 	return { subsChannel, attendanceChannel };
 }
 
