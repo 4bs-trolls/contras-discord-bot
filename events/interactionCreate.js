@@ -122,10 +122,7 @@ function isValidButtonInteraction(interaction, embed) {
 }
 
 function userHasRespondedToRollcall(interaction, embed) {
-	if (getIndexOfUserResponse(interaction, embed) !== -1) {
-		return true;
-	}
-	return false;
+	return getIndexOfUserResponse(interaction, embed) !== -1;
 }
 
 function getIndexOfUserResponse(interaction, embed) {
