@@ -3,7 +3,14 @@ const { Events, EmbedBuilder } = require('discord.js');
 module.exports = {
 	name: Events.InteractionCreate,
 	async execute(interaction) {
-		if (interaction.isChatInputCommand()) {
+        if (!interaction.member.nickname) {
+            const embed = new EmbedBuilder()
+                .setTitle('Uh oh! It looks like you have not set your nickname yet')
+                .setDescription('Please set a nickname so we can identify you in the server by typing `/nick {your name here}`.\n\n**Examples:**\nJohn would type `/nick John`\nNick would type `/nick Nick`')
+                .setColor('#FF0000')
+                .setTimestamp();
+            await interaction.reply({embeds: [embed], ephemeral: true});
+        } else if (interaction.isChatInputCommand()) {
 			const command = interaction.client.commands.get(interaction.commandName);
 
 			if (!command) {
@@ -115,10 +122,7 @@ function isValidButtonInteraction(interaction, embed) {
 }
 
 function userHasRespondedToRollcall(interaction, embed) {
-	if (getIndexOfUserResponse(interaction, embed) !== -1) {
-		return true;
-	}
-	return false;
+	return getIndexOfUserResponse(interaction, embed) !== -1;
 }
 
 function getIndexOfUserResponse(interaction, embed) {
