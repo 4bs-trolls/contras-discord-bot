@@ -11,6 +11,7 @@
   "author": "Forrest McIntyre",
   "license": "ISC",
   "dependencies": {
+    "@supabase/supabase-js": "^2.21.0",
     "common-tags": "^1.8.2",
     "discord.js": "^14.9.0",
     "dotenv": "^16.0.3"
