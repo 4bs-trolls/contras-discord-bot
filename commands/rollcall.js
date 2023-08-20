@@ -1,5 +1,7 @@
-const { team, venue, date, week } = require('./../data/next-match.json');
 const { SlashCommandBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder, EmbedBuilder } = require('discord.js');
+
+const path = require("path");
+const supabase = require( path.join(__dirname, '../supabase-assistant.js') )
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -7,20 +9,31 @@ module.exports = {
 		.setDescription('Run a rollcall for this week\'s pinball match')
 		.setDefaultMemberPermissions('0'),
 	async execute(interaction) {
-		const { attendanceChannel, annoucementsChannel } = getRollcallChannels(interaction);
-		const replyButtons = getReplyButtons();
-		const embed = getRollcallEmbed();
-		await interaction.reply({ content: 'Rollcall initiated', ephemeral: true });
-		await attendanceChannel.send({ content: `----------------**ATTENDANCE**----------------\nBelow are attendance records for the match against **${team}** on **${date}**\n -----------------------------------------------` });
-		await annoucementsChannel.send({ content: `@everyone It is that time again! Please use the buttons below to let us know your availability for Week ${week} as soon as you can... \n\n`, embeds: [embed], components: [replyButtons] });
+		try {
+			const result = await supabase.getUpcomingMatch();
+			if (result === 'There are no upcoming matches') {
+				await interaction.reply({ content: 'There are no upcoming matches to rollcall for', ephemeral: true });
+			} else {
+				const {week, date, venue, team} = result;
+				const { attendanceChannel, annoucementsChannel } = getRollcallChannels(interaction);
+				const replyButtons = getReplyButtons();
+				const embed = getRollcallEmbed(week, date, venue, team);
+				await interaction.reply({ content: 'Rollcall initiated', ephemeral: true });
+				await attendanceChannel.send({ content: `----------------**ATTENDANCE**----------------\nBelow are attendance records for the match against **${team}** on **${date}**\n -----------------------------------------------` });
+				await annoucementsChannel.send({ content: `@everyone It is that time again! Please use the buttons below to let us know your availability for Week ${week} as soon as you can... \n\n`, embeds: [embed], components: [replyButtons] });
+			}
+
+		} catch (e) {
+			await interaction.reply({ content: 'Failed to retrieve this week\'s data', ephemeral: true });
+		}
 	},
 };
 
-function getRollcallEmbed() {
+function getRollcallEmbed(week, date, venue, team) {
 	return new EmbedBuilder()
 		.setColor('f0791e')
 		.setTitle(`Contras vs ${team}`)
-		.setDescription(`Monday Night Pinball, Week ${week} \n ${date} at ${venue}`)
+		.setDescription(`Monday Night Pinball, Week ${week} \n ${date} @ 8:15PM at ${venue}`)
 		.setAuthor({ name: 'Coindexter Contras', iconURL: 'https://i.imgur.com/wS0ZY6f.png' })
 		.setURL('https://www.mondaynightpinball.com/teams/CDC')
 		.setFooter({ text: 'This bot is brought to you by LuckBasedGaming', iconURL: 'https://i.imgur.com/f3E6fEN.png' })
