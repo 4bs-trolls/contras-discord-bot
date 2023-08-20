@@ -29,7 +29,7 @@ function getHelpMessage(roles) {
 		message += '\n\n';
 		message += stripIndent(`
 			**Captain Only Commands**
-			\`/set-week\` is used to set the upcoming match's Week #, Date, Venue, and Team\n
+			\`/set-week\` has been deprecated -- automatically updates via database 
 			\`/rollcall\` will send an everyone ping in the annoucements channel that will ask for attendance with buttons for yes/no. As users reply, the embed in the original message will update with whether users are in or if they need a sub, and messages will be sent to the attendance channel\n
 			\`/restart\` will kill the service. As long as the bot is run using PM2, the bot will restart automatically making this an easy command to restart the bot\n
 			\`/subs\` will send an everyone ping in the subs channel that will ask for subs. As users reply, the attendance channel will be notified of each person wanting to sub\n
