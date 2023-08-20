@@ -3,7 +3,7 @@ const supabaseUrl = 'https://nwpgecjxpwvdwoczvuwr.supabase.co'
 const supabaseKey = process.env.SUPABASE_KEY
 // Create a single supabase client for interacting with your database
 const supabase = createClient(supabaseUrl, supabaseKey)
-const scheduleTableName = 'schedule_development';
+const scheduleTableName = process.env.SCHEDULE_TABLE;
 
 
 async function getUpcomingMatch() {
