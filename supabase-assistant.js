@@ -10,7 +10,7 @@ async function getUpcomingMatch() {
     let {data: upcomingMatches, error} = await supabase
         .from(scheduleTableName)
         .select('week, date, venue, venues(name), opponent, teams(name)')
-        .eq('season', 18) // TODO: Update this to be a constant
+        .eq('season', 19) // TODO: Update this to be a constant
         .gte('date', new Date().toDateString())
         .order('date', {ascending: true})
         .limit(1);
