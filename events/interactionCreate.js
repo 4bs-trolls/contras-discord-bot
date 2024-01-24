@@ -1,4 +1,8 @@
 const { Events, EmbedBuilder } = require('discord.js');
+const fs = require('fs');
+const path = require('path');
+const { turnAttendanceIntoEmbed } = require('../attendance-assistant');
+
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -27,12 +31,12 @@ module.exports = {
 		} else if (interaction.isButton()) {
 			const { subsChannel, attendanceChannel } = getServerChannels(interaction);
 			const embed = interaction.message.embeds[0];
-			const { newEmbed, attendanceMessage } = await getButtonResponse(interaction, embed, subsChannel);
+			const { newEmbed, attendanceMessage, attendanceEmbed } = await getButtonResponse(interaction, embed, subsChannel);
 			if (embed) {
 				await interaction.message.edit({ embeds: [newEmbed] });
 			}
-			if (attendanceMessage) {
-				await attendanceChannel.send(attendanceMessage);
+			if (attendanceMessage && attendanceEmbed) {
+				await attendanceChannel.send({ content: attendanceMessage, embeds: [attendanceEmbed] });
 			}
 		} else if (interaction.isAutocomplete()) {
 			const command = interaction.client.commands.get(interaction.commandName);
@@ -54,19 +58,20 @@ module.exports = {
 async function getButtonResponse(interaction, embed, subsChannel) {
 	let newEmbed;
 	let attendanceMessage;
+	let attendanceEmbed;
 	// ignore interaction if user has already responded with the same status
 	if (!isValidButtonInteraction(interaction, embed)) {
 		newEmbed = embed;
 		await interaction.reply({ content: 'You have already selected that response for this rollcall', ephemeral: true });
 	} else if (interaction.customId === 'rollcall-accept') {
-		({ newEmbed, attendanceMessage } = await rollcallAccept(embed, newEmbed, interaction));
+		({ newEmbed, attendanceMessage, attendanceEmbed } = await rollcallAccept(embed, newEmbed, interaction));
 	} else if (interaction.customId === 'rollcall-decline') {
-		({ newEmbed, attendanceMessage } = await rollcallDecline(embed, newEmbed, interaction, subsChannel));
+		({ newEmbed, attendanceMessage, attendanceEmbed } = await rollcallDecline(embed, newEmbed, interaction, subsChannel));
 	} else if (interaction.customId === 'subs-accept') {
 		await interaction.reply({ content: 'Thanks for volunteering! We appreciate it :smile:', ephemeral: true });
 		attendanceMessage = interaction.member.nickname + ' wants to sub! We should let them know if we are already full';
 	}
-	return { newEmbed, attendanceMessage };
+	return { newEmbed, attendanceMessage, attendanceEmbed };
 }
 
 async function rollcallDecline(embed, newEmbed, interaction, subsChannel) {
@@ -84,7 +89,7 @@ async function rollcallDecline(embed, newEmbed, interaction, subsChannel) {
 }
 
 async function rollcallAccept(embed, newEmbed, interaction) {
-	let attendanceMessage = interaction.member.nickname + ' is ready to blast some balls!';
+	let attendanceMessage = "";
 	if (embed) {
 		if (userHasRespondedToRollcall(interaction, embed)) {
 			const userField = getIndexOfUserResponse(interaction, embed);
@@ -93,8 +98,27 @@ async function rollcallAccept(embed, newEmbed, interaction) {
 		}
 		newEmbed = EmbedBuilder.from(embed).addFields({ name: interaction.member.nickname, value: 'is in!' });
 	}
+
+	let attendanceEmbed;
+	await fs.readFile('./data/attendanceWeek'+embed.title.split(' ')[1]+'.json', 'utf8', (err, data) => {
+		if (err) {
+			console.error(err);
+			return;
+		}
+		let attendanceData = JSON.parse(data);
+		attendanceData = {
+			...attendanceData,
+			players: attendanceData.players.map(player => {
+				if (player.name === interaction.member.nickname) {
+					player.status = 'is in!';
+				}
+				return player;
+			}),
+		}
+		attendanceEmbed = turnAttendanceIntoEmbed(attendanceData);
+	});
 	await interaction.reply({ content: 'You are in!', ephemeral: true });
-	return { newEmbed, attendanceMessage };
+	return { newEmbed, attendanceMessage, attendanceEmbed };
 }
 
 function getServerChannels(interaction) {
@@ -104,7 +128,7 @@ function getServerChannels(interaction) {
 }
 
 function isValidButtonInteraction(interaction, embed) {
-	if (!embed) {
+	if (interaction.customId === 'subs-accept') {
 		// subs.js accept button
 		return true;
 	}

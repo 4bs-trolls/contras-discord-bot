@@ -10,7 +10,7 @@ const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const token = process.env.TOKEN;
 
 // Create a new client instance
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
 client.commands = new Collection();
 

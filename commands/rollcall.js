@@ -1,7 +1,9 @@
 const { SlashCommandBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder, EmbedBuilder } = require('discord.js');
 
+const fs = require('fs');
 const path = require("path");
 const supabase = require( path.join(__dirname, '../supabase-assistant.js') )
+const { startAttendanceMessage, getDefaultAttendance} = require("../attendance-assistant");
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -10,6 +12,8 @@ module.exports = {
 		.setDefaultMemberPermissions('0'),
 	async execute(interaction) {
 		try {
+			let defaultAttendance = await getDefaultAttendance(interaction);
+
 			const result = await supabase.getUpcomingMatch();
 			if (result === 'There are no upcoming matches') {
 				await interaction.reply({ content: 'There are no upcoming matches to rollcall for', ephemeral: true });
@@ -19,12 +23,22 @@ module.exports = {
 				const replyButtons = getReplyButtons();
 				const embed = getRollcallEmbed(week, date, venue, team);
 				await interaction.reply({ content: 'Rollcall initiated', ephemeral: true });
-				await attendanceChannel.send({ content: `----------------**ATTENDANCE**----------------\nBelow are attendance records for the match against **${team}** on **${date}**\n -----------------------------------------------` });
+				const attendanceMessage = await attendanceChannel.send({ content: `Below are attendance records for the match against **${team}** on **${date}**` });
+				defaultAttendance = {
+					...defaultAttendance,
+					date: result.date,
+					week: result.week,
+					venue: result.venue,
+					team: result.team,
+					message: attendanceMessage.id,
+				}
+				await startAttendanceMessage(attendanceMessage, defaultAttendance);
 				await annoucementsChannel.send({ content: `@everyone It is that time again! Please use the buttons below to let us know your availability for Week ${week} as soon as you can... \n\n`, embeds: [embed], components: [replyButtons] });
 			}
+			// fs.writeFileSync(path.join('./', 'data', 'attendanceWeek'+result.week+'.json'), JSON.stringify(defaultAttendance));
 
 		} catch (e) {
-			await interaction.reply({ content: 'Failed to retrieve this week\'s data', ephemeral: true });
+			await interaction.editReply({ content: 'Failed to retrieve this week\'s data\n\n ERROR: '+e.stack, ephemeral: true });
 		}
 	},
 };
@@ -32,7 +46,7 @@ module.exports = {
 function getRollcallEmbed(week, date, venue, team) {
 	return new EmbedBuilder()
 		.setColor('f0791e')
-		.setTitle(`Contras vs ${team}`)
+		.setTitle(`Week ${week} - Contras vs ${team}`)
 		.setDescription(`Monday Night Pinball, Week ${week} \n ${date} @ 8:15PM at ${venue}`)
 		.setAuthor({ name: 'Coindexter Contras', iconURL: 'https://i.imgur.com/wS0ZY6f.png' })
 		.setURL('https://www.mondaynightpinball.com/teams/CDC')
@@ -60,3 +74,5 @@ function getRollcallChannels(interaction) {
 	const annoucementsChannel = interaction.client.channels.cache.get(process.env.ANNOUNCEMENTS_CHANNEL_ID);
 	return { attendanceChannel, annoucementsChannel };
 }
+
+
