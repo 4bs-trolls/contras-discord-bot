@@ -1,7 +1,5 @@
 const {SlashCommandBuilder} = require('discord.js');
-const path = require('path');
-
-const supabase = require( path.join(__dirname, '../supabase-assistant.js') )
+const SupabaseHelper = require('../helpers/SupabaseHelper');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -11,7 +9,7 @@ module.exports = {
     async execute(interaction) {
         let message = '';
         try {
-            let result = await supabase.getUpcomingMatch();
+            let result = await SupabaseHelper.getUpcomingMatch();
             if (result === 'There are no upcoming matches') {
                 message = result;
             } else {
