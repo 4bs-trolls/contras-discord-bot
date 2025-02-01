@@ -1,7 +1,10 @@
 const { SlashCommandBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder, EmbedBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
 const AttendanceHelper = require('../helpers/AttendanceHelper');
+const DiscordUtils = require('../helpers/DiscordUtils');
 const season = process.env.SEASON;
+const attendanceChannelId = process.env.ATTENDANCE_CHANNEL_ID;
+const announcementsChannelId = process.env.ANNOUNCEMENTS_CHANNEL_ID;
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -16,8 +19,6 @@ module.exports = {
 			} else {
 				const { week, date, venue, team } = result;
 				let defaultAttendance = await AttendanceHelper.setupAttendanceForWeek(week, season, interaction);
-				const attendanceChannel = interaction.client.channels.cache.get(process.env.ATTENDANCE_CHANNEL_ID);
-				const announcementsChannel = interaction.client.channels.cache.get(process.env.ANNOUNCEMENTS_CHANNEL_ID);
 				const replyButtons = new ActionRowBuilder()
 					.addComponents(
 						new ButtonBuilder()
@@ -42,7 +43,7 @@ module.exports = {
 					})
 					.setThumbnail('https://i.imgur.com/V9kalvC.png');
 				await interaction.reply({ content: 'Rollcall initiated', ephemeral: true });
-				const attendanceMessage = await attendanceChannel.send({ content: `Below are attendance records for the match against **${team}** on **${date}**` });
+				const attendanceMessage = await DiscordUtils.sendMessageToChannel(interaction, attendanceChannelId, `Below are attendance records for the match against **${team}** on **${date}**`);
 				defaultAttendance = {
 					...defaultAttendance,
 					date: result.date,
@@ -51,12 +52,13 @@ module.exports = {
 					team: result.team,
 					message: attendanceMessage.id,
 				};
-				await AttendanceHelper.startAttendanceMessage(attendanceMessage, defaultAttendance);
-				await announcementsChannel.send({
-					content: `@everyone It is that time again! Please use the buttons below to let us know your availability for Week ${week} as soon as you can... \n\n`,
-					embeds: [embed],
-					components: [replyButtons],
+				const attendanceEmbed = AttendanceHelper.turnAttendanceIntoEmbed(defaultAttendance);
+				await attendanceMessage.edit({
+					content: `Below are attendance records for Week ${(defaultAttendance.week)} against **${(defaultAttendance.team)}** on **${(defaultAttendance.date)}**`,
+					embeds: [attendanceEmbed],
 				});
+				const announcementContent = `@everyone It is that time again! Please use the buttons below to let us know your availability for Week ${week} as soon as you can... \n\n`;
+				await DiscordUtils.sendMessageToChannel(interaction, announcementsChannelId, announcementContent, [embed], [replyButtons] );
 			}
 
 		} catch (e) {

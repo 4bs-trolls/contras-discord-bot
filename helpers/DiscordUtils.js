@@ -1,15 +1,10 @@
 async function sendMessageToChannel(interaction, channelId, content, embeds, components) {
-	try {
 	const channel = interaction.client.channels.cache.get(channelId);
 	if (!channel) {
 		console.error(`Channel with id ${channelId} not found`);
 		return;
 	}
-		return await channel.send({ content, embeds, components });
-	} catch (e) {
-		console.error(e);
-		return Promise.reject(e.message)
-	}
+	return await channel.send({ content, embeds, components });
 }
 
 function isUserCaptain(user) {

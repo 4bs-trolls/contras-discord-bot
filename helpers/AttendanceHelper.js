@@ -12,14 +12,6 @@ const AttendanceStatus = {
 	INTERESTED: 'Interested',
 };
 
-async function startAttendanceMessage(message, attendance) {
-	const embed = turnAttendanceIntoEmbed(attendance);
-	message.edit({
-		content: `Below are attendance records for Week ${(attendance.week)} against **${(attendance.team)}** on **${(attendance.date)}**`,
-		embeds: [embed],
-	});
-}
-
 function turnAttendanceIntoEmbed(attendanceData) {
 	const players = attendanceData.players;
 
@@ -104,7 +96,6 @@ function getContraRole(player) {
 
 
 module.exports = {
-	startAttendanceMessage,
 	turnAttendanceIntoEmbed,
 	setupAttendanceForWeek,
 	updateStatusForPlayer,
