@@ -7,7 +7,6 @@ const { ROLLCALL_ACCEPT_BUTTON, ROLLCALL_DECLINE_BUTTON, SUBS_ACCEPT_BUTTON } = 
 const season = process.env.SEASON;
 const subsChannelId = process.env.SUBS_CHANNEL_ID;
 const attendanceChannelId = process.env.ATTENDANCE_CHANNEL_ID;
-const announcementsChannelId = process.env.ANNOUNCEMENTS_CHANNEL_ID;
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -42,29 +41,20 @@ module.exports = {
 				const user = interaction.member
 				const { week, date, venue, team } = await SupabaseHelper.getUpcomingMatch();
 				if (interaction.customId === ROLLCALL_ACCEPT_BUTTON) {
-					const {
-						oldAttendanceData,
-						attendanceData
-					} = await AttendanceHelper.updateStatusForPlayer(user, week, season, AttendanceStatus.ACCEPTED);
+					await AttendanceHelper.updateStatusForPlayer(user, week, season, AttendanceStatus.ACCEPTED);
 					attendanceMessage = `**${interaction.member.nickname}** is ready to blast some balls!`;
 
 					replyMessage = 'You are in!';
 				} else if (interaction.customId === ROLLCALL_DECLINE_BUTTON) {
-					const {
-						oldAttendanceData,
-						attendanceData
-					} = await AttendanceHelper.updateStatusForPlayer(user, week, season, AttendanceStatus.DECLINED);
+					await AttendanceHelper.updateStatusForPlayer(user, week, season, AttendanceStatus.DECLINED);
 					attendanceMessage = `**${interaction.member.nickname}** is unable to make it this week. You might want to run \`/subs\` in ${channelMention(subsChannelId)}`;
 
 					replyMessage = 'We will find you a sub :smile:';
 				} else if (interaction.customId === SUBS_ACCEPT_BUTTON) {
-					const {
-						oldAttendanceData,
-						attendanceData
-					} = await AttendanceHelper.updateStatusForPlayer(user, week, season, AttendanceStatus.INTERESTED);
+					await AttendanceHelper.updateStatusForPlayer(user, week, season, AttendanceStatus.INTERESTED);
 					attendanceMessage = `**${interaction.member.nickname}** wants to sub! We should let them know if we are already full`;
 
-					replyMessage = 'Thanks for volunteering! We appreciate it :smile:';
+					replyMessage = 'Thanks for volunteering! We appreciate it :smile:. A captain will reach out to you if we still have spots available';
 				}
 				const attendance = await SupabaseHelper.getAttendance(week, season);
 				const normalizeAttendanceData = AttendanceHelper.normalizeAttendanceData(attendance, week, date, venue, team);
