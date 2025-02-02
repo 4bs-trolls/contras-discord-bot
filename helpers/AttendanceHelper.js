@@ -12,28 +12,59 @@ const AttendanceStatus = {
 	INTERESTED: 'Interested',
 };
 
-function turnAttendanceIntoEmbed(attendanceData) {
-	const players = attendanceData.players;
+function turnAttendanceIntoRollcallEmbed(attendanceData) {
+	const embed = new EmbedBuilder()
+		.setColor('f0791e')
+		.setTitle(`Week ${attendanceData.week} - Contras vs ${attendanceData.team}`)
+		.setDescription(`Monday Night Pinball, Week ${attendanceData.week} \n ${attendanceData.date} @ 8:15PM at ${attendanceData.venue}`)
+		.setAuthor({ name: 'Coindexter Contras', iconURL: 'https://i.imgur.com/wS0ZY6f.png' })
+		.setURL('https://www.mondaynightpinball.com/teams/CDC')
+		.setFooter({
+			text: 'This bot is brought to you by LuckBasedGaming',
+			iconURL: 'https://i.imgur.com/f3E6fEN.png',
+		})
+		.setThumbnail('https://i.imgur.com/V9kalvC.png');
 
-	let embed = new EmbedBuilder()
+	const players = attendanceData.players;
+	for (const player of players) {
+		if (player.status !== AttendanceStatus.UNKNOWN) {
+			embed.addFields({ name: player.name, value: getRollcallStatus(player.status) });
+		}
+	}
+	return embed;
+}
+
+function turnAttendanceIntoEmbed(attendanceData) {
+	const embed = new EmbedBuilder()
 		.setColor('f0791e')
 		.setTitle(`Attendance for Week ${attendanceData.week}`)
 		.setDescription(`Monday Night Pinball, Week ${attendanceData.week} \n ${attendanceData.date} @ 8:15PM at ${attendanceData.venue}`);
 
-	let newEmbed = EmbedBuilder.from(embed);
+	const players = attendanceData.players;
 	for (const player of players) {
 		if (player.status !== AttendanceStatus.UNKNOWN) {
-			newEmbed.addFields({ name: player.name, value: player.status, inline: true });
+			embed.addFields({ name: player.name, value: player.status, inline: true });
 		}
 	}
-	return newEmbed;
+	return embed;
 }
 
-async function updateStatusForPlayer(player_id, week, season, status) {
-	const oldAttendanceData = await SupabaseHelper.getAttendanceForPlayer(player_id, week, season);
-	const attendanceData = { player_id, week, season, status };
-	await SupabaseHelper.updateAttendance(attendanceData);
-	return { old: oldAttendanceData, new: attendanceData };
+
+function normalizeAttendanceData(players, week, date, venue, team) {
+	return {
+		players: players,
+		week: week,
+		date: date,
+		venue: venue,
+		team: team,
+	};
+
+}
+async function updateStatusForPlayer(player, week, season, status) {
+	const oldAttendanceData = await SupabaseHelper.getAttendanceForPlayer(player.id, week, season);
+	const attendanceData = { player_id: player.id, name: player.nickname, week, season, status };
+	await SupabaseHelper.updateAttendance([attendanceData]);
+	return { oldAttendanceData, attendanceData };
 }
 
 async function setupAttendanceForWeek(week, season, interaction) {
@@ -48,17 +79,15 @@ async function setupAttendanceForWeek(week, season, interaction) {
 			week: week,
 			season: season,
 			role_ids: getRoleIds(player),
-			role: getContraRole(player),
 		});
 	});
 	await SupabaseHelper.updateAttendance(allContras);
 	return {
 		players: map(allContras, function(contra) {
 				return {
-					id: contra.id,
+					id: contra.player_id,
 					name: contra.name,
 					status: contra.status,
-					role: contra.role,
 				};
 			},
 		),
@@ -81,23 +110,32 @@ function getPlayerStartingStatus(player) {
 	}
 }
 
+function getRollcallStatus(status) {
+	switch (status) {
+		case AttendanceStatus.ACCEPTED:
+			return ' is ready to blast some balls!';
+		case AttendanceStatus.DECLINED:
+			return ' needs a sub';
+		case AttendanceStatus.INTERESTED:
+			return ' is interested in playing';
+		case AttendanceStatus.NOT_RESPONDED:
+			return ' has not responded';
+		default:
+			return ' - Unknown Status';
+	}
+}
+
 function getRoleIds(player) {
 	const roles = player.roles.cache;
 	return roles.map(role => role.id);
 }
 
-function getContraRole(player) {
-	if (DiscordUtils.isUserCaptain(player) || DiscordUtils.isUserMember(player)) {
-		return 'Weekly Player';
-	} else if (DiscordUtils.isUserSub(player)) {
-		return 'Sub';
-	}
-}
-
 
 module.exports = {
 	turnAttendanceIntoEmbed,
+	turnAttendanceIntoRollcallEmbed,
 	setupAttendanceForWeek,
 	updateStatusForPlayer,
+	normalizeAttendanceData,
 	AttendanceStatus,
 };

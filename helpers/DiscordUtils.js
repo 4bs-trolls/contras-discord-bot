@@ -1,3 +1,7 @@
+const ROLLCALL_ACCEPT_BUTTON = 'rollcall-accept';
+const ROLLCALL_DECLINE_BUTTON = 'rollcall-decline';
+const SUBS_ACCEPT_BUTTON = 'subs-accept';
+
 async function sendMessageToChannel(interaction, channelId, content, embeds, components) {
 	const channel = interaction.client.channels.cache.get(channelId);
 	if (!channel) {
@@ -5,6 +9,14 @@ async function sendMessageToChannel(interaction, channelId, content, embeds, com
 		return;
 	}
 	return await channel.send({ content, embeds, components });
+}
+
+function isRollcallReaction(interaction) {
+	return interaction.customId === ROLLCALL_ACCEPT_BUTTON || interaction.customId === ROLLCALL_DECLINE_BUTTON;
+}
+
+function isSubReaction(interaction) {
+	return interaction.customId === SUBS_ACCEPT_BUTTON;
 }
 
 function isUserCaptain(user) {
@@ -28,4 +40,9 @@ module.exports = {
 	isUserCaptain,
 	isUserMember,
 	isUserSub,
+	isSubReaction,
+	isRollcallReaction,
+	SUBS_ACCEPT_BUTTON,
+	ROLLCALL_DECLINE_BUTTON,
+	ROLLCALL_ACCEPT_BUTTON,
 };

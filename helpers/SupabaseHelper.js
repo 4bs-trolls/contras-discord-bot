@@ -46,21 +46,27 @@ async function updateAttendance(attendanceData) {
 async function getAttendance(week, season) {
 	let { data: attendance, error } = await supabase
 		.from(attendanceTableName)
-		.select('week, season, user_id, status, role_ids')
+		.select('player_id, name, status, role_ids')
 		.eq('week', week)
 		.eq('season', season);
 	if (error) {
 		return `Unable to retrieve attendance: ${error}`;
 	} else {
-		return attendance;
+		return attendance.map((player) => {
+			return {
+				player_id: player.player_id,
+				name: player.name,
+				status: player.status,
+			};
+		});
 	}
 }
 
 async function getAttendanceForPlayer(player_id, week, season) {
 	let { data: attendance, error } = await supabase
 		.from(attendanceTableName)
-		.select('week, season, user_id, status, role_ids')
-		.eq('user_id', player_id)
+		.select('player_id, name, status, role_ids')
+		.eq('player_id', player_id)
 		.eq('week', week)
 		.eq('season', season);
 	if (error) {
@@ -68,8 +74,7 @@ async function getAttendanceForPlayer(player_id, week, season) {
 	} else {
 		return {
 			player_id: attendance[0].player_id,
-			week: attendance[0].week,
-			season: attendance[0].season,
+			name: attendance[0].name,
 			status: attendance[0].status }
 	}
 }
