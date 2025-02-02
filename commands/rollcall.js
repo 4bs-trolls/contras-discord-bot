@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
 const AttendanceHelper = require('../helpers/AttendanceHelper');
 const DiscordUtils = require('../helpers/DiscordUtils');
@@ -18,8 +18,6 @@ module.exports = {
 			if (result === 'There are no upcoming matches') {
 				await interaction.reply({ content: 'There are no upcoming matches to rollcall for', ephemeral: true });
 			} else {
-				const { week, date, venue, team } = result;
-				const attendanceData = await AttendanceHelper.setupAttendanceForWeek(week, season, interaction);
 				const acceptButton = new ButtonBuilder()
 					.setCustomId(ROLLCALL_ACCEPT_BUTTON)
 					.setLabel('Blast some balls!')
@@ -29,34 +27,20 @@ module.exports = {
 					.setCustomId(ROLLCALL_DECLINE_BUTTON)
 					.setLabel('Find me a sub')
 					.setStyle(ButtonStyle.Danger);
-				const replyButtons = new ActionRowBuilder()
-					.addComponents(acceptButton, declineButton);
-				const embed = new EmbedBuilder()
-					.setColor('f0791e')
-					.setTitle(`Week ${week} - Contras vs ${team}`)
-					.setDescription(`Monday Night Pinball, Week ${week} \n ${date} @ 8:15PM at ${venue}`)
-					.setAuthor({ name: 'Coindexter Contras', iconURL: 'https://i.imgur.com/wS0ZY6f.png' })
-					.setURL('https://www.mondaynightpinball.com/teams/CDC')
-					.setFooter({
-						text: 'This bot is brought to you by LuckBasedGaming',
-						iconURL: 'https://i.imgur.com/f3E6fEN.png',
-					})
-					.setThumbnail('https://i.imgur.com/V9kalvC.png');
-				await interaction.reply({ content: 'Rollcall initiated', ephemeral: true });
-				const announcementContent = `@everyone It is that time again! Please use the buttons below to let us know your availability for Week ${week} as soon as you can... \n\n`;
-				const announcementMessage = await DiscordUtils.sendMessageToChannel(interaction, announcementsChannelId, announcementContent, [embed], [replyButtons]);
-				const attendanceMessage = await DiscordUtils.sendMessageToChannel(interaction, attendanceChannelId, `Below are attendance records for the match against **${team}** on **${date}**`);
+				const replyButtons = new ActionRowBuilder().addComponents(acceptButton, declineButton);
+				const { week, date, venue, team } = result;
+				const attendanceData = await AttendanceHelper.setupAttendanceForWeek(week, season, interaction);
 				let normalizedAttendanceData = AttendanceHelper.normalizeAttendanceData(attendanceData.players, week, date, venue, team);
-				normalizedAttendanceData = {
-					...normalizedAttendanceData,
-					attendance_message_id: attendanceMessage.id,
-					announcement_message_id: announcementMessage.id,
-				};
+				const embed = AttendanceHelper.turnAttendanceIntoRollcallEmbed(normalizedAttendanceData);
 				const attendanceEmbed = AttendanceHelper.turnAttendanceIntoEmbed(normalizedAttendanceData);
-				await attendanceMessage.edit({
-					content: `Below are attendance records for Week ${(normalizedAttendanceData.week)} against **${(normalizedAttendanceData.team)}** on **${(normalizedAttendanceData.date)}**`,
-					embeds: [attendanceEmbed],
-				});
+				await interaction.reply({ content: 'Rollcall initiated', ephemeral: true });
+
+				const announcementContent = `@everyone It is that time again! Please use the buttons below to let us know your availability for Week ${week} as soon as you can... \n\n`;
+				await DiscordUtils.sendMessageToChannel(interaction, announcementsChannelId, announcementContent, [embed], [replyButtons]);
+
+				const attendanceContent = `Below are attendance records for Week ${(normalizedAttendanceData.week)} against **${(normalizedAttendanceData.team)}** on **${(normalizedAttendanceData.date)}**`
+				await DiscordUtils.sendMessageToChannel(interaction, attendanceChannelId, attendanceContent, [attendanceEmbed]);
+
 			}
 
 		} catch (e) {
