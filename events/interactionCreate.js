@@ -1,4 +1,4 @@
-const { Events, EmbedBuilder, MessageFlags, channelMention } = require('discord.js');
+const { Events, EmbedBuilder, channelMention } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
 const { AttendanceStatus } = require('../helpers/AttendanceHelper');
 const AttendanceHelper = require('../helpers/AttendanceHelper');
@@ -34,7 +34,7 @@ module.exports = {
 		} else if (interaction.isButton()) {
 			try {
 				// TODO: Reject interaction and let the user know if they responded with the same status (double click)
-				await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+				await interaction.deferReply( { ephemeral: true } );
 				let attendanceMessage = '';
 				let replyMessage = '';
 
@@ -68,10 +68,10 @@ module.exports = {
 				if (attendanceMessage && attendanceEmbed) {
 					await DiscordUtils.sendMessageToChannel(interaction, attendanceChannelId, attendanceMessage, [attendanceEmbed]);
 				}
-				await interaction.editReply({ content: replyMessage, ephemeral: true });
+				await interaction.followUp({ content: replyMessage, ephemeral: true });
 			}
 			catch (error) {
-				await interaction.editReply({ content: 'Failed to update attendance\n\n ERROR: ' + error.stack, ephemeral: true });
+				await interaction.followUp({ content: 'Failed to update attendance\n\n ERROR: ' + error.stack, ephemeral: true });
 			}
 
 		} else if (interaction.isAutocomplete()) {
