@@ -3,6 +3,7 @@ const SupabaseHelper = require('../helpers/SupabaseHelper');
 const AttendanceHelper = require('../helpers/AttendanceHelper');
 const DiscordUtils = require('../helpers/DiscordUtils');
 const { ROLLCALL_DECLINE_BUTTON, ROLLCALL_ACCEPT_BUTTON } = require('../helpers/DiscordUtils');
+const { TROLL_EMOJI_ID } = require('../constants');
 const season = process.env.SEASON;
 const attendanceChannelId = process.env.ATTENDANCE_CHANNEL_ID;
 const announcementsChannelId = process.env.ANNOUNCEMENTS_CHANNEL_ID;
@@ -21,7 +22,7 @@ module.exports = {
 				const acceptButton = new ButtonBuilder()
 					.setCustomId(ROLLCALL_ACCEPT_BUTTON)
 					.setLabel('TROLLS! UP')
-					.setEmoji('1404841818176356515')
+					.setEmoji(TROLL_EMOJI_ID)
 					.setStyle(ButtonStyle.Success);
 				const declineButton = new ButtonBuilder()
 					.setCustomId(ROLLCALL_DECLINE_BUTTON)

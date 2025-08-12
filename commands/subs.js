@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper')
+const { TROLL_EMOJI_ID, TEAM_NAME } = require('../constants');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -19,11 +20,11 @@ module.exports = {
 						new ButtonBuilder()
 							.setCustomId('subs-accept')
 							.setLabel('Down to TROLL!')
-							.setEmoji('1404841818176356515')
+							.setEmoji(TROLL_EMOJI_ID)
 							.setStyle(ButtonStyle.Success),
 					);
 				await interaction.reply({ content: `Subs requested for match against **${team}** at **${venue}** on **${date}**`, ephemeral: true });
-				await subsChannel.send({ content: `@here Someone is out this week on the normal roster so we could use your help! We are looking for subs for Week ${week} - **${date}** at **${venue}** against **${team}** \n\nIf you would like to sub for the TROLLS! this week, let us know by tapping the button below!`, components: [acceptButton] });
+				await subsChannel.send({ content: `@here Someone is out this week on the normal roster so we could use your help! We are looking for subs for Week ${week} - **${date}** at **${venue}** against **${team}** \n\nIf you would like to sub for the ${TEAM_NAME} this week, let us know by tapping the button below!`, components: [acceptButton] });
 
 			}
 

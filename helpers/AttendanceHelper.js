@@ -3,6 +3,7 @@ const { map } = require('lodash');
 
 const SupabaseHelper = require('./SupabaseHelper');
 const DiscordUtils = require('./DiscordUtils');
+const { TEAM_NAME, TEAM_WITH_VENUE } = require('../constants');
 
 const AttendanceStatus = {
 	NOT_RESPONDED: 'Not Responded',
@@ -15,9 +16,9 @@ const AttendanceStatus = {
 function turnAttendanceIntoRollcallEmbed(attendanceData) {
 	const embed = new EmbedBuilder()
 		.setColor('f0791e')
-		.setTitle(`Week ${attendanceData.week} - TROLLS! vs ${attendanceData.team}`)
+		.setTitle(`Week ${attendanceData.week} - ${TEAM_NAME} vs ${attendanceData.team}`)
 		.setDescription(`Monday Night Pinball, Week ${attendanceData.week} \n ${attendanceData.date} @ 8:15PM at ${attendanceData.venue}`)
-		.setAuthor({ name: '4Bs TROLLS!', iconURL: 'https://i.imgur.com/wS0ZY6f.png' })
+		.setAuthor({ name: TEAM_WITH_VENUE, iconURL: 'https://i.imgur.com/wS0ZY6f.png' })
 		.setURL('https://www.mondaynightpinball.com/teams/CDC')
 		.setFooter({
 			text: 'This bot is brought to you by LuckBasedGaming',
