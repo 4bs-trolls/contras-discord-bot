@@ -20,8 +20,8 @@ module.exports = {
 			} else {
 				const acceptButton = new ButtonBuilder()
 					.setCustomId(ROLLCALL_ACCEPT_BUTTON)
-					.setLabel('Blast some balls!')
-					.setEmoji('1059189786910408714') // Contras emoji TODO: Update to Troll emoji
+					.setLabel('TROLLS! UP')
+					.setEmoji('1404841818176356515')
 					.setStyle(ButtonStyle.Success);
 				const declineButton = new ButtonBuilder()
 					.setCustomId(ROLLCALL_DECLINE_BUTTON)

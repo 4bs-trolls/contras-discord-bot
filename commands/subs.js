@@ -18,8 +18,8 @@ module.exports = {
 					.addComponents(
 						new ButtonBuilder()
 							.setCustomId('subs-accept')
-							.setLabel('Blast some balls!')
-							.setEmoji('1059189786910408714')
+							.setLabel('Down to TROLL!')
+							.setEmoji('1404841818176356515')
 							.setStyle(ButtonStyle.Success),
 					);
 				await interaction.reply({ content: `Subs requested for match against **${team}** at **${venue}** on **${date}**`, ephemeral: true });
