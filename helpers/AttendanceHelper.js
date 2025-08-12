@@ -15,9 +15,9 @@ const AttendanceStatus = {
 function turnAttendanceIntoRollcallEmbed(attendanceData) {
 	const embed = new EmbedBuilder()
 		.setColor('f0791e')
-		.setTitle(`Week ${attendanceData.week} - Contras vs ${attendanceData.team}`)
+		.setTitle(`Week ${attendanceData.week} - TROLLS! vs ${attendanceData.team}`)
 		.setDescription(`Monday Night Pinball, Week ${attendanceData.week} \n ${attendanceData.date} @ 8:15PM at ${attendanceData.venue}`)
-		.setAuthor({ name: 'Coindexter Contras', iconURL: 'https://i.imgur.com/wS0ZY6f.png' })
+		.setAuthor({ name: '4Bs TROLLS!', iconURL: 'https://i.imgur.com/wS0ZY6f.png' })
 		.setURL('https://www.mondaynightpinball.com/teams/CDC')
 		.setFooter({
 			text: 'This bot is brought to you by LuckBasedGaming',
@@ -70,9 +70,9 @@ async function updateStatusForPlayer(player, week, season, status) {
 async function setupAttendanceForWeek(week, season, interaction) {
 	const guild = interaction.client.guilds.cache.get(process.env.GUILD_ID);
 	const discordUsers = await guild.members.fetch();
-	const allContras = [];
+	const allTrolls = [];
 	discordUsers.forEach(player => {
-		allContras.push({
+		allTrolls.push({
 			player_id: player.id,
 			name: getPlayerName(player),
 			status: getPlayerStartingStatus(player),
@@ -81,9 +81,9 @@ async function setupAttendanceForWeek(week, season, interaction) {
 			role_ids: getRoleIds(player),
 		});
 	});
-	await SupabaseHelper.updateAttendance(allContras);
+	await SupabaseHelper.updateAttendance(allTrolls);
 	return {
-		players: map(allContras, function(contra) {
+		players: map(allTrolls, function(contra) {
 				return {
 					id: contra.player_id,
 					name: contra.name,

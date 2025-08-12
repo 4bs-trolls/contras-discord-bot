@@ -23,7 +23,7 @@ module.exports = {
 							.setStyle(ButtonStyle.Success),
 					);
 				await interaction.reply({ content: `Subs requested for match against **${team}** at **${venue}** on **${date}**`, ephemeral: true });
-				await subsChannel.send({ content: `@here Someone is out this week on the normal roster so we could use your help! We are looking for subs for Week ${week} - **${date}** at **${venue}** against **${team}** \n\nIf you would like to sub for the Contras this week, let us know by tapping the button below!`, components: [acceptButton] });
+				await subsChannel.send({ content: `@here Someone is out this week on the normal roster so we could use your help! We are looking for subs for Week ${week} - **${date}** at **${venue}** against **${team}** \n\nIf you would like to sub for the TROLLS! this week, let us know by tapping the button below!`, components: [acceptButton] });
 
 			}
 
