@@ -18,13 +18,13 @@ function turnAttendanceIntoRollcallEmbed(attendanceData) {
 		.setColor('f0791e')
 		.setTitle(`Week ${attendanceData.week} - ${TEAM_NAME} vs ${attendanceData.team}`)
 		.setDescription(`Monday Night Pinball, Week ${attendanceData.week} \n ${attendanceData.date} @ 8:15PM at ${attendanceData.venue}`)
-		.setAuthor({ name: TEAM_WITH_VENUE, iconURL: 'https://i.imgur.com/wS0ZY6f.png' })
+		.setAuthor({ name: TEAM_WITH_VENUE, iconURL: 'https://i.imgur.com/nJ9OXOV.png' })
 		.setURL('https://www.mondaynightpinball.com/teams/CDC')
 		.setFooter({
 			text: 'This bot is brought to you by LuckBasedGaming',
 			iconURL: 'https://i.imgur.com/f3E6fEN.png',
 		})
-		.setThumbnail('https://i.imgur.com/V9kalvC.png');
+		.setThumbnail('https://i.imgur.com/5QDFDSr.png');
 
 	const players = attendanceData.players;
 	for (const player of players) {
@@ -114,7 +114,7 @@ function getPlayerStartingStatus(player) {
 function getRollcallStatus(status) {
 	switch (status) {
 		case AttendanceStatus.ACCEPTED:
-			return ' is ready to blast some balls!';
+			return ' is ready to defend the castle!';
 		case AttendanceStatus.DECLINED:
 			return ' needs a sub';
 		case AttendanceStatus.INTERESTED:

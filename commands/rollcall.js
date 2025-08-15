@@ -23,11 +23,11 @@ module.exports = {
 					.setCustomId(ROLLCALL_ACCEPT_BUTTON)
 					.setLabel('TROLLS! UP')
 					.setEmoji(TROLL_EMOJI_ID)
-					.setStyle(ButtonStyle.Success);
+					.setStyle(ButtonStyle.Danger);
 				const declineButton = new ButtonBuilder()
 					.setCustomId(ROLLCALL_DECLINE_BUTTON)
 					.setLabel('Find me a sub')
-					.setStyle(ButtonStyle.Danger);
+					.setStyle(ButtonStyle.Secondary);
 				const replyButtons = new ActionRowBuilder().addComponents(acceptButton, declineButton);
 				const { week, date, venue, team } = result;
 				const attendanceData = await AttendanceHelper.setupAttendanceForWeek(week, season, interaction);
