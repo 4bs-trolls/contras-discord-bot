@@ -1,11 +1,11 @@
 {
-  "name": "contras-discord-bot",
+  "name": "trolls-discord-bot",
   "version": "1.0.0",
-  "description": "Discord Bot for Coindexter Contra's Discord server",
+  "description": "Discord Bot for 4Bs TROLLS! Discord server",
   "main": "bot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "pm2 start bot.js --name \"Contras Bot\" --watch",
+    "start": "pm2 start bot.js --name \"TROLLS! Bot\" --watch",
     "lint": "eslint ."
   },
   "author": "Forrest McIntyre",

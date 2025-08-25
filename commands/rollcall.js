@@ -3,6 +3,7 @@ const SupabaseHelper = require('../helpers/SupabaseHelper');
 const AttendanceHelper = require('../helpers/AttendanceHelper');
 const DiscordUtils = require('../helpers/DiscordUtils');
 const { ROLLCALL_DECLINE_BUTTON, ROLLCALL_ACCEPT_BUTTON } = require('../helpers/DiscordUtils');
+const { TROLL_EMOJI_ID } = require('../constants');
 const season = process.env.SEASON;
 const attendanceChannelId = process.env.ATTENDANCE_CHANNEL_ID;
 const announcementsChannelId = process.env.ANNOUNCEMENTS_CHANNEL_ID;
@@ -20,13 +21,13 @@ module.exports = {
 			} else {
 				const acceptButton = new ButtonBuilder()
 					.setCustomId(ROLLCALL_ACCEPT_BUTTON)
-					.setLabel('Blast some balls!')
-					.setEmoji('1059189786910408714') // Contras emoji
-					.setStyle(ButtonStyle.Success);
+					.setLabel('TROLLS! UP')
+					.setEmoji(TROLL_EMOJI_ID)
+					.setStyle(ButtonStyle.Danger);
 				const declineButton = new ButtonBuilder()
 					.setCustomId(ROLLCALL_DECLINE_BUTTON)
 					.setLabel('Find me a sub')
-					.setStyle(ButtonStyle.Danger);
+					.setStyle(ButtonStyle.Secondary);
 				const replyButtons = new ActionRowBuilder().addComponents(acceptButton, declineButton);
 				const { week, date, venue, team } = result;
 				const attendanceData = await AttendanceHelper.setupAttendanceForWeek(week, season, interaction);

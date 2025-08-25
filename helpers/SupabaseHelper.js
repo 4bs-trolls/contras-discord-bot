@@ -1,5 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
-const supabaseUrl = 'https://nwpgecjxpwvdwoczvuwr.supabase.co';
+const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 // Create a single supabase client for interacting with your database
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -17,7 +17,7 @@ async function getUpcomingMatch() {
 		.order('date', { ascending: true })
 		.limit(1);
 
-	if (upcomingMatches.length === 0) {
+	if (!upcomingMatches || upcomingMatches.length === 0) {
 		return 'There are no upcoming matches';
 	} else {
 		const week = upcomingMatches[0].week;
@@ -75,7 +75,8 @@ async function getAttendanceForPlayer(player_id, week, season) {
 		return {
 			player_id: attendance[0].player_id,
 			name: attendance[0].name,
-			status: attendance[0].status }
+			status: attendance[0].status,
+		};
 	}
 }
 

@@ -3,6 +3,7 @@ const { map } = require('lodash');
 
 const SupabaseHelper = require('./SupabaseHelper');
 const DiscordUtils = require('./DiscordUtils');
+const { TEAM_NAME, TEAM_WITH_VENUE } = require('../constants');
 
 const AttendanceStatus = {
 	NOT_RESPONDED: 'Not Responded',
@@ -15,15 +16,15 @@ const AttendanceStatus = {
 function turnAttendanceIntoRollcallEmbed(attendanceData) {
 	const embed = new EmbedBuilder()
 		.setColor('f0791e')
-		.setTitle(`Week ${attendanceData.week} - Contras vs ${attendanceData.team}`)
+		.setTitle(`Week ${attendanceData.week} - ${TEAM_NAME} vs ${attendanceData.team}`)
 		.setDescription(`Monday Night Pinball, Week ${attendanceData.week} \n ${attendanceData.date} @ 8:15PM at ${attendanceData.venue}`)
-		.setAuthor({ name: 'Coindexter Contras', iconURL: 'https://i.imgur.com/wS0ZY6f.png' })
+		.setAuthor({ name: TEAM_WITH_VENUE, iconURL: 'https://i.imgur.com/nJ9OXOV.png' })
 		.setURL('https://www.mondaynightpinball.com/teams/CDC')
 		.setFooter({
 			text: 'This bot is brought to you by LuckBasedGaming',
 			iconURL: 'https://i.imgur.com/f3E6fEN.png',
 		})
-		.setThumbnail('https://i.imgur.com/V9kalvC.png');
+		.setThumbnail('https://i.imgur.com/5QDFDSr.png');
 
 	const players = attendanceData.players;
 	for (const player of players) {
@@ -70,9 +71,9 @@ async function updateStatusForPlayer(player, week, season, status) {
 async function setupAttendanceForWeek(week, season, interaction) {
 	const guild = interaction.client.guilds.cache.get(process.env.GUILD_ID);
 	const discordUsers = await guild.members.fetch();
-	const allContras = [];
+	const allTrolls = [];
 	discordUsers.forEach(player => {
-		allContras.push({
+		allTrolls.push({
 			player_id: player.id,
 			name: getPlayerName(player),
 			status: getPlayerStartingStatus(player),
@@ -81,9 +82,9 @@ async function setupAttendanceForWeek(week, season, interaction) {
 			role_ids: getRoleIds(player),
 		});
 	});
-	await SupabaseHelper.updateAttendance(allContras);
+	await SupabaseHelper.updateAttendance(allTrolls);
 	return {
-		players: map(allContras, function(contra) {
+		players: map(allTrolls, function(contra) {
 				return {
 					id: contra.player_id,
 					name: contra.name,
@@ -113,7 +114,7 @@ function getPlayerStartingStatus(player) {
 function getRollcallStatus(status) {
 	switch (status) {
 		case AttendanceStatus.ACCEPTED:
-			return ' is ready to blast some balls!';
+			return ' is ready to defend the castle!';
 		case AttendanceStatus.DECLINED:
 			return ' needs a sub';
 		case AttendanceStatus.INTERESTED:
