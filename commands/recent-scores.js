@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
-const { stripIndent } = require('common-tags');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -20,7 +19,8 @@ module.exports = {
 		try {
 			const machineId = interaction.options.getString('machine_id');
 			let limit = interaction.options.getNumber('limit') || 10;
-			limit = Math.min(limit, 25); // Cap at 25
+			// Cap at 25
+			limit = Math.min(limit, 25);
 
 			const scores = await SupabaseHelper.getRecentScores(machineId, limit);
 
@@ -33,15 +33,16 @@ module.exports = {
 			}
 
 			const scoresText = scores
-				.map(score => `Week ${score.week}: ${score.playerName} - ${score.score.toLocaleString('en-US')}`)
+				.map(score => `• **Week ${score.week}** - ${score.playerName}: \`${score.score.toLocaleString('en-US')}\``)
 				.join('\n');
 
-			const message = stripIndent(`
-				**Recent Scores - ${scores[0].machine}**
-				Showing ${scores.length} most recent scores
-
-				${scoresText}
-			`);
+			const message = [
+				`**🕐 Recent Scores - ${scores[0].machine}**`,
+				'',
+				`**Showing:** ${scores.length} most recent scores`,
+				'',
+				scoresText,
+			].join('\n');
 
 			await interaction.reply({ content: message, ephemeral: true });
 

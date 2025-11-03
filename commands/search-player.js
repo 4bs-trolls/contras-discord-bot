@@ -1,7 +1,6 @@
 const { SlashCommandBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
 const DiscordUtils = require('../helpers/DiscordUtils');
-const { stripIndent } = require('common-tags');
 const season = process.env.SEASON;
 
 module.exports = {
@@ -36,14 +35,15 @@ module.exports = {
 			// If only one player found, show it with action buttons
 			if (players.length === 1) {
 				const player = players[0];
-				const message = stripIndent(`
-					**Player Found**
-					Name: ${player.name}
-					Player ID: \`${player.id}\`
-					IPR: ${player.ipr || 'N/A'}
-
-					Use the buttons below to view statistics for this player:
-				`);
+				const message = [
+					`**🎯 Player Found**`,
+					'',
+					`**Name:** ${player.name}`,
+					`**Player ID:** \`${player.id}\``,
+					`**IPR:** ${player.ipr || 'N/A'}`,
+					'',
+					`💡 Use the buttons below to view statistics:`,
+				].join('\n');
 
 				const historyButton = new ButtonBuilder()
 					.setCustomId(DiscordUtils.createStatsButtonId(DiscordUtils.STATS_PLAYER_HISTORY_PREFIX, player.id, seasonId))
@@ -56,17 +56,18 @@ module.exports = {
 			} else {
 				// Multiple players found, display a list
 				const playerList = players
-					.map(player => `• ${player.name} (ID: \`${player.id}\`, IPR: ${player.ipr || 'N/A'})`)
+					.map(player => `• **${player.name}** - ID: \`${player.id}\` | IPR: ${player.ipr || 'N/A'}`)
 					.join('\n');
 
-				const message = stripIndent(`
-					**Found ${players.length} Players**
-					${playerList}
-
-					Try searching again with a more specific name, or use the Player ID with commands like:
-					\`/player-history <player-id>\`
-					\`/player-machine-avg <player-id> <machine-id>\`
-				`);
+				const message = [
+					`**🔍 Found ${players.length} Players**`,
+					'',
+					playerList,
+					'',
+					`💡 **Narrow your search** or use a Player ID with commands like:`,
+					`• \`/player-history <player-id>\``,
+					`• \`/player-machine-avg <player-id> <machine-id>\``,
+				].join('\n');
 
 				await interaction.reply({ content: message, ephemeral: true });
 			}

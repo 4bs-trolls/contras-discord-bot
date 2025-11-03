@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
-const { stripIndent } = require('common-tags');
 const season = process.env.SEASON;
 
 module.exports = {
@@ -42,17 +41,21 @@ module.exports = {
 			const machinesToShow = result.machines.slice(0, limit);
 
 			const machinesText = machinesToShow
-				.map((machine, index) => `${index + 1}. ${machine.machineName}: ${machine.pickCount} times`)
+				.map((machine, index) => {
+					const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+					const plural = machine.pickCount === 1 ? 'time' : 'times';
+					return `${medal} **${machine.machineName}**: \`${machine.pickCount}\` ${plural}`;
+				})
 				.join('\n');
 
-			const message = stripIndent(`
-				**Top Machine Picks**
-				Team: ${result.teamId}
-				Season: ${result.seasonId}
-				Showing top ${machinesToShow.length} machines
-
-				${machinesText}
-			`);
+			const message = [
+				`**🎰 Top Machine Picks**`,
+				'',
+				`**Team:** ${result.teamId} | **Season:** ${result.seasonId}`,
+				`**Showing:** Top ${machinesToShow.length} most picked machines`,
+				'',
+				machinesText,
+			].join('\n');
 
 			await interaction.reply({ content: message, ephemeral: true });
 

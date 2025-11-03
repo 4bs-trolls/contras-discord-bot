@@ -1,7 +1,6 @@
 const { SlashCommandBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
 const DiscordUtils = require('../helpers/DiscordUtils');
-const { stripIndent } = require('common-tags');
 const season = process.env.SEASON;
 
 module.exports = {
@@ -36,13 +35,14 @@ module.exports = {
 			// If only one machine found, show it with action buttons
 			if (machines.length === 1) {
 				const machine = machines[0];
-				const message = stripIndent(`
-					**Machine Found**
-					Name: ${machine.name}
-					Machine ID: \`${machine.id}\`
-
-					Use the buttons below to view statistics for this machine:
-				`);
+				const message = [
+					`**🎰 Machine Found**`,
+					'',
+					`**Name:** ${machine.name}`,
+					`**Machine ID:** \`${machine.id}\``,
+					'',
+					`💡 Use the buttons below to view statistics:`,
+				].join('\n');
 
 				const avgButton = new ButtonBuilder()
 					.setCustomId(DiscordUtils.createStatsButtonId(DiscordUtils.STATS_MACHINE_AVG_PREFIX, machine.id, seasonId))
@@ -60,17 +60,18 @@ module.exports = {
 			} else {
 				// Multiple machines found, display a list
 				const machineList = machines
-					.map(machine => `• ${machine.name} (ID: \`${machine.id}\`)`)
+					.map(machine => `• **${machine.name}** - ID: \`${machine.id}\``)
 					.join('\n');
 
-				const message = stripIndent(`
-					**Found ${machines.length} Machines**
-					${machineList}
-
-					Try searching again with a more specific name, or use the Machine ID with commands like:
-					\`/avg-game <machine-id>\`
-					\`/machine-leaderboard <machine-id>\`
-				`);
+				const message = [
+					`**🔍 Found ${machines.length} Machines**`,
+					'',
+					machineList,
+					'',
+					`💡 **Narrow your search** or use a Machine ID with commands like:`,
+					`• \`/avg-game <machine-id>\``,
+					`• \`/machine-leaderboard <machine-id>\``,
+				].join('\n');
 
 				await interaction.reply({ content: message, ephemeral: true });
 			}

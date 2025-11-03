@@ -1,7 +1,6 @@
 const { SlashCommandBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
 const DiscordUtils = require('../helpers/DiscordUtils');
-const { stripIndent } = require('common-tags');
 const season = process.env.SEASON;
 
 module.exports = {
@@ -36,13 +35,14 @@ module.exports = {
 			// If only one team found, show it with action buttons
 			if (teams.length === 1) {
 				const team = teams[0];
-				const message = stripIndent(`
-					**Team Found**
-					Name: ${team.name}
-					Team ID: \`${team.id}\`
-
-					Use the buttons below to view statistics for this team:
-				`);
+				const message = [
+					`**🏆 Team Found**`,
+					'',
+					`**Name:** ${team.name}`,
+					`**Team ID:** \`${team.id}\``,
+					'',
+					`💡 Use the buttons below to view statistics:`,
+				].join('\n');
 
 				const performanceButton = new ButtonBuilder()
 					.setCustomId(DiscordUtils.createStatsButtonId(DiscordUtils.STATS_TEAM_PERFORMANCE_PREFIX, team.id, seasonId))
@@ -60,17 +60,18 @@ module.exports = {
 			} else {
 				// Multiple teams found, display a list
 				const teamList = teams
-					.map(team => `• ${team.name} (ID: \`${team.id}\`)`)
+					.map(team => `• **${team.name}** - ID: \`${team.id}\``)
 					.join('\n');
 
-				const message = stripIndent(`
-					**Found ${teams.length} Teams**
-					${teamList}
-
-					Try searching again with a more specific name, or use the Team ID with commands like:
-					\`/team-performance <team-id>\`
-					\`/top-picks <team-id>\`
-				`);
+				const message = [
+					`**🔍 Found ${teams.length} Teams**`,
+					'',
+					teamList,
+					'',
+					`💡 **Narrow your search** or use a Team ID with commands like:`,
+					`• \`/team-performance <team-id>\``,
+					`• \`/top-picks <team-id>\``,
+				].join('\n');
 
 				await interaction.reply({ content: message, ephemeral: true });
 			}

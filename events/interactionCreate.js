@@ -101,7 +101,6 @@ async function rejectNoNickname(interaction) {
 }
 
 async function handleStatsButton(interaction) {
-	const { stripIndent } = require('common-tags');
 	await interaction.deferReply({ ephemeral: true });
 
 	const { action, entityId, seasonId } = DiscordUtils.parseStatsButtonId(interaction.customId);
@@ -119,17 +118,17 @@ async function handleStatsButton(interaction) {
 
 			const gamesToShow = result.games.slice(0, 15);
 			const historyText = gamesToShow
-				.map((game) => `Week ${game.week}: ${game.machine} - ${game.score.toLocaleString('en-US')} pts (${game.points} points vs ${game.opponent})`)
+				.map((game) => `• **Week ${game.week}** - ${game.machine}: \`${game.score.toLocaleString('en-US')}\` (${game.points} pts vs ${game.opponent})`)
 				.join('\n');
 
-			const message = stripIndent(`
-				**Player History - ${result.playerName}**
-				Season: ${result.seasonId}
-				Total Games: ${result.games.length}
-				Showing: ${gamesToShow.length} most recent games
-
-				${historyText}
-			`);
+			const message = [
+				`**📜 Player History - ${result.playerName}**`,
+				'',
+				`**Season:** ${result.seasonId} | **Total Games:** ${result.games.length}`,
+				`**Showing:** ${gamesToShow.length} most recent games`,
+				'',
+				historyText,
+			].join('\n');
 
 			await interaction.followUp({ content: message, ephemeral: true });
 
@@ -143,13 +142,14 @@ async function handleStatsButton(interaction) {
 				return;
 			}
 
-			const message = stripIndent(`
-				**Machine Average Statistics**
-				Machine: ${result.machine}
-				Average Score: ${result.averageScore.toLocaleString('en-US')}
-				Games Played: ${result.gamesPlayed}
-				Season: ${result.seasonId}
-			`);
+			const message = [
+				`**📊 Machine Average Statistics**`,
+				'',
+				`**Machine:** ${result.machine}`,
+				`**Average Score:** \`${result.averageScore.toLocaleString('en-US')}\``,
+				`**Games Played:** ${result.gamesPlayed}`,
+				`**Season:** ${result.seasonId}`,
+			].join('\n');
 
 			await interaction.followUp({ content: message, ephemeral: true });
 
@@ -164,16 +164,19 @@ async function handleStatsButton(interaction) {
 			}
 
 			const scoresText = result.scores
-				.map((score, index) => `${index + 1}. ${score.playerName}: ${score.score.toLocaleString('en-US')} (Week ${score.week})`)
+				.map((score, index) => {
+					const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+					return `${medal} **${score.playerName}**: \`${score.score.toLocaleString('en-US')}\` (Week ${score.week})`;
+				})
 				.join('\n');
 
-			const message = stripIndent(`
-				**Machine Leaderboard - ${result.machine}**
-				Season: ${result.seasonId}
-				Top ${result.scores.length} Scores
-
-				${scoresText}
-			`);
+			const message = [
+				`**🏆 Machine Leaderboard - ${result.machine}**`,
+				'',
+				`**Season:** ${result.seasonId} | **Top ${result.scores.length} Scores**`,
+				'',
+				scoresText,
+			].join('\n');
 
 			await interaction.followUp({ content: message, ephemeral: true });
 
@@ -187,13 +190,14 @@ async function handleStatsButton(interaction) {
 				return;
 			}
 
-			const message = stripIndent(`
-				**Team Performance - Season ${result.seasonId}**
-				Team ID: ${result.teamId}
-				Matches Played: ${result.matchesPlayed}
-				Total Points: ${result.totalPoints}
-				Average Points Per Match: ${result.averagePointsPerMatch}
-			`);
+			const message = [
+				`**🎯 Team Performance - Season ${result.seasonId}**`,
+				'',
+				`**Team:** ${result.teamId}`,
+				`**Matches Played:** ${result.matchesPlayed}`,
+				`**Total Points:** ${result.totalPoints}`,
+				`**Average Per Match:** \`${result.averagePointsPerMatch}\``,
+			].join('\n');
 
 			await interaction.followUp({ content: message, ephemeral: true });
 
@@ -209,17 +213,21 @@ async function handleStatsButton(interaction) {
 
 			const machinesToShow = result.machines.slice(0, 10);
 			const machinesText = machinesToShow
-				.map((machine, index) => `${index + 1}. ${machine.machineName}: ${machine.pickCount} times`)
+				.map((machine, index) => {
+					const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+					const plural = machine.pickCount === 1 ? 'time' : 'times';
+					return `${medal} **${machine.machineName}**: \`${machine.pickCount}\` ${plural}`;
+				})
 				.join('\n');
 
-			const message = stripIndent(`
-				**Top Machine Picks**
-				Team: ${result.teamId}
-				Season: ${result.seasonId}
-				Showing top ${machinesToShow.length} machines
-
-				${machinesText}
-			`);
+			const message = [
+				`**🎰 Top Machine Picks**`,
+				'',
+				`**Team:** ${result.teamId} | **Season:** ${result.seasonId}`,
+				`**Showing:** Top ${machinesToShow.length} most picked machines`,
+				'',
+				machinesText,
+			].join('\n');
 
 			await interaction.followUp({ content: message, ephemeral: true });
 		}

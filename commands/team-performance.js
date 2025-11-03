@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
-const { stripIndent } = require('common-tags');
 const season = process.env.SEASON;
 
 module.exports = {
@@ -32,13 +31,14 @@ module.exports = {
 				return;
 			}
 
-			const message = stripIndent(`
-				**Team Performance - Season ${result.seasonId}**
-				Team ID: ${result.teamId}
-				Matches Played: ${result.matchesPlayed}
-				Total Points: ${result.totalPoints}
-				Average Points Per Match: ${result.averagePointsPerMatch}
-			`);
+			const message = [
+				`**🎯 Team Performance - Season ${result.seasonId}**`,
+				'',
+				`**Team:** ${result.teamId}`,
+				`**Matches Played:** ${result.matchesPlayed}`,
+				`**Total Points:** ${result.totalPoints}`,
+				`**Average Per Match:** \`${result.averagePointsPerMatch}\``,
+			].join('\n');
 
 			await interaction.reply({ content: message, ephemeral: true });
 

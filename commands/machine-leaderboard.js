@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
-const { stripIndent } = require('common-tags');
 const season = process.env.SEASON;
 
 module.exports = {
@@ -40,16 +39,19 @@ module.exports = {
 			}
 
 			const scoresText = result.scores
-				.map((score, index) => `${index + 1}. ${score.playerName}: ${score.score.toLocaleString('en-US')} (Week ${score.week})`)
+				.map((score, index) => {
+					const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+					return `${medal} **${score.playerName}**: \`${score.score.toLocaleString('en-US')}\` (Week ${score.week})`;
+				})
 				.join('\n');
 
-			const message = stripIndent(`
-				**Machine Leaderboard - ${result.machine}**
-				Season: ${result.seasonId}
-				Top ${result.scores.length} Scores
-
-				${scoresText}
-			`);
+			const message = [
+				`**🏆 Machine Leaderboard - ${result.machine}**`,
+				'',
+				`**Season:** ${result.seasonId} | **Top ${result.scores.length} Scores**`,
+				'',
+				scoresText,
+			].join('\n');
 
 			await interaction.reply({ content: message, ephemeral: true });
 

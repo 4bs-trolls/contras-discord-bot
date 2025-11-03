@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
 const captain = process.env.CAPTAIN_ROLE_ID;
-const { stripIndent } = require('common-tags');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -11,40 +10,55 @@ module.exports = {
 		const isCaptain = roles.some(x => x === captain);
 
 		// Message 1: General Commands
-		const generalMessage = stripIndent(`
-			**General Commands**
-			\`/next-match\` will retrieve the Date, Venue, and Team for the upcoming match
-			\`/links\` returns a set of helpful links
-			\`/stats\` returns your IFPA/MatchPlay links if set; always includes the team stats link
-					**Optional Params [\`ifpa\`, \`match-play\`]:** sets the IFPA/MatchPlay ID(s) for your Discord user
-			\`/server\` returns the name of the server and how many users it has
-			\`/user\` returns the Username of the user who ran the command, and the date/time they joined the server
-			\`/help\` returns this help message
-		`);
+		const generalMessage = [
+			'**📋 General Commands**',
+			'',
+			'• `/next-match` - Get date, venue, and opponent for your upcoming match',
+			'• `/links` - View helpful league links',
+			'• `/stats` - Get your IFPA/MatchPlay links (includes team stats)',
+			'  └ **Optional:** `[ifpa]` `[match-play]` - Set your IDs',
+			'• `/server` - View server name and member count',
+			'• `/user` - View your username and join date',
+			'• `/help` - Show this help message',
+		].join('\n');
 
 		// Message 2: Search Commands
-		const searchMessage = stripIndent(`
-			**Search Commands** (Easy way to find IDs!)
-			\`/search-player <player_name> [season]\` - Search for a player and get quick stats
-			\`/search-machine <machine_name> [season]\` - Search for a machine and view statistics
-			\`/search-team <team_name> [season]\` - Search for a team and view info
-		`);
+		const searchMessage = [
+			'**🔍 Search Commands** (Easy way to find IDs!)',
+			'',
+			'• `/search-player <player_name> [season]`',
+			'  └ Search for a player with interactive buttons for quick stats',
+			'• `/search-machine <machine_name> [season]`',
+			'  └ Search for a machine and access statistics via buttons',
+			'• `/search-team <team_name> [season]`',
+			'  └ Search for a team and view performance data',
+			'',
+			'💡 **Partial names work!** Try "attack" to find "Attack from Mars"',
+		].join('\n');
 
 		// Message 3: Statistics Commands
-		const statsMessage = stripIndent(`
-			**Statistics Commands** (Use search commands to find IDs!)
-			\`/avg-game <machine-id> [season]\` - Get average score for a pinball machine
-			\`/player-machine-avg <player-id> <machine-id> [season]\` - Get a player's average on a specific machine
-			\`/machine-leaderboard <machine-id> [season] [limit]\` - View top scores on a specific machine
-			\`/player-history <player-id> [season] [limit]\` - View a player's complete game history
-			\`/team-performance <team-id> [season]\` - View team performance statistics
-			\`/recent-scores <machine-id> [limit]\` - View the most recent scores on a specific machine
-			\`/top-picks <team-id> [season] [limit]\` - View machines an opposing team picks most frequently
-
-			**Tips:**
-			• Use season \`0\` for all-time statistics (e.g., \`/avg-game mm 0\`)
-			• Commands needing IDs will guide you to use search commands
-		`);
+		const statsMessage = [
+			'**📊 Statistics Commands** (Use search to find IDs!)',
+			'',
+			'• `/avg-game <machine-id> [season]`',
+			'  └ Average score for a machine across all players',
+			'• `/player-machine-avg <player-id> <machine-id> [season]`',
+			'  └ A player\'s average on a specific machine',
+			'• `/machine-leaderboard <machine-id> [season] [limit]`',
+			'  └ Top scores on a specific machine (🥇🥈🥉)',
+			'• `/player-history <player-id> [season] [limit]`',
+			'  └ Complete game history for a player',
+			'• `/team-performance <team-id> [season]`',
+			'  └ Team stats including matches and points',
+			'• `/recent-scores <machine-id> [limit]`',
+			'  └ Most recent scores on a specific machine',
+			'• `/top-picks <team-id> [season] [limit]`',
+			'  └ Machines an opposing team picks most often',
+			'',
+			'**✨ Pro Tips:**',
+			'• Use season `0` for all-time stats (e.g., `/avg-game mm 0`)',
+			'• Don\'t know the ID? Use search commands first!',
+		].join('\n');
 
 		// Send messages
 		await interaction.reply({ content: generalMessage, ephemeral: true });
@@ -53,13 +67,21 @@ module.exports = {
 
 		// Message 4: Captain Commands (if applicable)
 		if (isCaptain) {
-			const captainMessage = stripIndent(`
-				**Captain Only Commands**
-				\`/set-week\` has been deprecated -- automatically updates via database 
-				\`/rollcall\` will send an everyone ping in the annoucements channel that will ask for attendance with buttons for yes/no. As users reply, the embed in the original message will update with whether users are in or if they need a sub, and messages will be sent to the attendance channel
-				\`/restart\` will kill the service. As long as the bot is run using PM2, the bot will restart automatically making this an easy command to restart the bot
-				\`/subs\` will send an everyone ping in the subs channel that will ask for subs. As users reply, the attendance channel will be notified of each person wanting to sub
-			`);
+			const captainMessage = [
+				'**👑 Captain Only Commands**',
+				'',
+				'• `/rollcall`',
+				'  └ Send attendance ping with Yes/No buttons',
+				'  └ Embed updates automatically as users respond',
+				'  └ Messages sent to attendance channel',
+				'• `/subs`',
+				'  └ Send @everyone ping requesting substitute players',
+				'  └ Attendance channel notified of each volunteer',
+				'• `/restart`',
+				'  └ Restart the bot (requires PM2 to auto-restart)',
+				'',
+				'**Note:** `/set-week` is deprecated - automatically syncs from database',
+			].join('\n');
 			await interaction.followUp({ content: captainMessage, ephemeral: true });
 		}
 	},
