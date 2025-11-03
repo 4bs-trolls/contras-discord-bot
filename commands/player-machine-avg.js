@@ -9,24 +9,24 @@ module.exports = {
 		.setDescription('Get a player\'s average score on a specific machine')
 		.addStringOption(option =>
 			option
-				.setName('player')
-				.setDescription('Player ID')
+				.setName('player_id')
+				.setDescription('Player ID (use /search-player to find the ID)')
 				.setRequired(true))
 		.addStringOption(option =>
 			option
-				.setName('machine')
-				.setDescription('Machine ID (e.g., afm, mm, etc.)')
+				.setName('machine_id')
+				.setDescription('Machine ID (use /search-machine to find the ID)')
 				.setRequired(true))
 		.addNumberOption(option =>
 			option
 				.setName('season')
-				.setDescription('Season ID (defaults to current season)')
+				.setDescription('Season ID (defaults to current season, use 0 for all-time)')
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
-			const playerId = interaction.options.getString('player');
-			const machineId = interaction.options.getString('machine');
-			const seasonId = interaction.options.getNumber('season') || season;
+			const playerId = interaction.options.getString('player_id');
+			const machineId = interaction.options.getString('machine_id');
+			const seasonId = interaction.options.getNumber('season') ?? season;
 
 			const result = await SupabaseHelper.getPlayerMachineAverage(playerId, machineId, seasonId);
 

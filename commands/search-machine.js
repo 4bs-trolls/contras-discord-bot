@@ -10,18 +10,18 @@ module.exports = {
 		.setDescription('Search for a pinball machine by name')
 		.addStringOption(option =>
 			option
-				.setName('name')
-				.setDescription('Machine name to search for')
+				.setName('machine_name')
+				.setDescription('Machine name (partial names work too)')
 				.setRequired(true))
 		.addNumberOption(option =>
 			option
 				.setName('season')
-				.setDescription('Season ID (defaults to current season)')
+				.setDescription('Season ID (defaults to current season, use 0 for all-time)')
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
-			const searchTerm = interaction.options.getString('name');
-			const seasonId = interaction.options.getNumber('season') || season;
+			const searchTerm = interaction.options.getString('machine_name');
+			const seasonId = interaction.options.getNumber('season') ?? season;
 
 			const machines = await SupabaseHelper.searchMachines(searchTerm);
 

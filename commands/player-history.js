@@ -9,13 +9,13 @@ module.exports = {
 		.setDescription('View a player\'s complete game history')
 		.addStringOption(option =>
 			option
-				.setName('player')
-				.setDescription('Player ID')
+				.setName('player_id')
+				.setDescription('Player ID (use /search-player to find the ID)')
 				.setRequired(true))
 		.addNumberOption(option =>
 			option
 				.setName('season')
-				.setDescription('Season ID (defaults to current season)')
+				.setDescription('Season ID (defaults to current season, use 0 for all-time)')
 				.setRequired(false))
 		.addNumberOption(option =>
 			option
@@ -24,8 +24,8 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
-			const playerId = interaction.options.getString('player');
-			const seasonId = interaction.options.getNumber('season') || season;
+			const playerId = interaction.options.getString('player_id');
+			const seasonId = interaction.options.getNumber('season') ?? season;
 			let limit = interaction.options.getNumber('limit') || 15;
 			limit = Math.min(limit, 25); // Cap at 25
 

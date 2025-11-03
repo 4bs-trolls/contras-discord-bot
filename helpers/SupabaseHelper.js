@@ -81,11 +81,17 @@ async function getAttendanceForPlayer(player_id, week, seasonParam) {
 }
 
 async function getAverageScoreForMachine(machineId, seasonId) {
-	const { data, error } = await supabase
+	let query = supabase
 		.from('league_player_stats')
 		.select('score, machine_id, league_machines(name)')
-		.eq('machine_id', machineId)
-		.eq('season_id', seasonId);
+		.eq('machine_id', machineId);
+
+	// If seasonId is 0, get all-time stats; otherwise filter by season
+	if (seasonId !== 0) {
+		query = query.eq('season_id', seasonId);
+	}
+
+	const { data, error } = await query;
 
 	if (error || !data || data.length === 0) {
 		return null;
@@ -99,17 +105,23 @@ async function getAverageScoreForMachine(machineId, seasonId) {
 		machineId: machineId,
 		averageScore: average,
 		gamesPlayed: data.length,
-		seasonId: seasonId,
+		seasonId: seasonId === 0 ? 'All-Time' : seasonId,
 	};
 }
 
 async function getPlayerMachineAverage(playerId, machineId, seasonId) {
-	const { data, error } = await supabase
+	let query = supabase
 		.from('league_player_stats')
 		.select('score, player_name, league_machines(name)')
 		.eq('player_id', playerId)
-		.eq('machine_id', machineId)
-		.eq('season_id', seasonId);
+		.eq('machine_id', machineId);
+
+	// If seasonId is 0, get all-time stats; otherwise filter by season
+	if (seasonId !== 0) {
+		query = query.eq('season_id', seasonId);
+	}
+
+	const { data, error } = await query;
 
 	if (error || !data || data.length === 0) {
 		return null;
@@ -125,54 +137,22 @@ async function getPlayerMachineAverage(playerId, machineId, seasonId) {
 		machineId: machineId,
 		averageScore: average,
 		gamesPlayed: data.length,
-		seasonId: seasonId,
+		seasonId: seasonId === 0 ? 'All-Time' : seasonId,
 	};
 }
 
-async function getLeaderboard(seasonId, limit = 10) {
-	const { data, error } = await supabase
-		.from('league_player_stats')
-		.select('player_id, player_name, score')
-		.eq('season_id', seasonId);
-
-	if (error || !data || data.length === 0) {
-		return null;
-	}
-
-	// Group by player and calculate averages
-	const playerStats = {};
-	data.forEach(record => {
-		if (!playerStats[record.player_id]) {
-			playerStats[record.player_id] = {
-				name: record.player_name,
-				totalScore: 0,
-				games: 0,
-			};
-		}
-		playerStats[record.player_id].totalScore += Number(record.score);
-		playerStats[record.player_id].games += 1;
-	});
-
-	// Calculate averages and sort
-	const leaderboard = Object.entries(playerStats)
-		.map(([playerId, stats]) => ({
-			playerId,
-			playerName: stats.name,
-			averageScore: Math.round(stats.totalScore / stats.games),
-			gamesPlayed: stats.games,
-		}))
-		.sort((a, b) => b.averageScore - a.averageScore)
-		.slice(0, limit);
-
-	return leaderboard;
-}
-
 async function getTeamPerformance(teamId, seasonId) {
-	const { data, error } = await supabase
+	let query = supabase
 		.from('league_player_stats')
 		.select('points, week, match_detail_id, team_id')
-		.eq('team_id', teamId)
-		.eq('season_id', seasonId);
+		.eq('team_id', teamId);
+
+	// If seasonId is 0, get all-time stats; otherwise filter by season
+	if (seasonId !== 0) {
+		query = query.eq('season_id', seasonId);
+	}
+
+	const { data, error } = await query;
 
 	if (error || !data || data.length === 0) {
 		return null;
@@ -199,12 +179,12 @@ async function getTeamPerformance(teamId, seasonId) {
 		matchesPlayed: matches.length,
 		totalPoints: Math.round(totalPoints * 10) / 10,
 		averagePointsPerMatch: Math.round(averagePoints * 10) / 10,
-		seasonId: seasonId,
+		seasonId: seasonId === 0 ? 'All-Time' : seasonId,
 	};
 }
 
 async function getPlayerHistory(playerId, seasonId) {
-	const { data, error } = await supabase
+	let query = supabase
 		.from('league_player_stats')
 		.select(`
 			score,
@@ -214,9 +194,16 @@ async function getPlayerHistory(playerId, seasonId) {
 			league_machines(name),
 			league_teams!league_player_stats_opponent_id_fkey(name)
 		`)
-		.eq('player_id', playerId)
-		.eq('season_id', seasonId)
-		.order('week', { ascending: false });
+		.eq('player_id', playerId);
+
+	// If seasonId is 0, get all-time stats; otherwise filter by season
+	if (seasonId !== 0) {
+		query = query.eq('season_id', seasonId);
+	}
+
+	query = query.order('week', { ascending: false });
+
+	const { data, error } = await query;
 
 	if (error || !data || data.length === 0) {
 		return null;
@@ -232,18 +219,24 @@ async function getPlayerHistory(playerId, seasonId) {
 			opponent: record.league_teams?.name || 'Unknown',
 			week: record.week,
 		})),
-		seasonId: seasonId,
+		seasonId: seasonId === 0 ? 'All-Time' : seasonId,
 	};
 }
 
 async function getMachineLeaderboard(machineId, seasonId, limit = 10) {
-	const { data, error } = await supabase
+	let query = supabase
 		.from('league_player_stats')
 		.select('player_name, score, week, league_machines(name)')
-		.eq('machine_id', machineId)
-		.eq('season_id', seasonId)
-		.order('score', { ascending: false })
-		.limit(limit);
+		.eq('machine_id', machineId);
+
+	// If seasonId is 0, get all-time stats; otherwise filter by season
+	if (seasonId !== 0) {
+		query = query.eq('season_id', seasonId);
+	}
+
+	query = query.order('score', { ascending: false }).limit(limit);
+
+	const { data, error } = await query;
 
 	if (error || !data || data.length === 0) {
 		return null;
@@ -257,12 +250,11 @@ async function getMachineLeaderboard(machineId, seasonId, limit = 10) {
 			score: record.score,
 			week: record.week,
 		})),
-		seasonId: seasonId,
+		seasonId: seasonId === 0 ? 'All-Time' : seasonId,
 	};
 }
 
-async function getRecentScores(limit = 10) {
-	// Get more to account for multiple players per week
+async function getRecentScores(machineId, limit = 10) {
 	const { data, error } = await supabase
 		.from('league_player_stats')
 		.select(`
@@ -273,17 +265,29 @@ async function getRecentScores(limit = 10) {
 			league_machines(name),
 			league_matches(date)
 		`)
+		.eq('machine_id', machineId)
+		.order('season_id', { ascending: false })
 		.order('week', { ascending: false })
-		.limit(limit * 4);
+		.limit(limit * 3);
 
 	if (error || !data || data.length === 0) {
 		return null;
 	}
 
-	// Take the first 'limit' unique entries
-	return data.slice(0, limit).map(record => ({
+	// Sort by actual match date if available, then take the limit
+	const sorted = data
+		.filter(record => record.league_matches?.date)
+		.sort((a, b) => {
+			const dateA = new Date(a.league_matches.date);
+			const dateB = new Date(b.league_matches.date);
+			// Most recent first
+			return dateB - dateA;
+		})
+		.slice(0, limit);
+
+	return sorted.map(record => ({
 		playerName: record.player_name,
-		machine: record.league_machines?.name || 'Unknown',
+		machine: record.league_machines?.name || machineId,
 		score: record.score,
 		week: record.week,
 		seasonId: record.season_id,
@@ -293,11 +297,17 @@ async function getRecentScores(limit = 10) {
 
 async function getTopPickedMachines(teamId, seasonId) {
 	// Get all matches where the team was home team (they pick machines)
-	const { data: matchData, error: matchError } = await supabase
+	let matchQuery = supabase
 		.from('league_matches')
 		.select('id')
-		.eq('home_team_id', teamId)
-		.eq('season_id', seasonId);
+		.eq('home_team_id', teamId);
+
+	// If seasonId is 0, get all-time stats; otherwise filter by season
+	if (seasonId !== 0) {
+		matchQuery = matchQuery.eq('season_id', seasonId);
+	}
+
+	const { data: matchData, error: matchError } = await matchQuery;
 
 	if (matchError || !matchData || matchData.length === 0) {
 		return null;
@@ -306,11 +316,17 @@ async function getTopPickedMachines(teamId, seasonId) {
 	const matchIds = matchData.map(match => match.id);
 
 	// Get all player stats for those matches
-	const { data: playerStats, error } = await supabase
+	let statsQuery = supabase
 		.from('league_player_stats')
 		.select('machine_id, league_machines(name)')
-		.in('match_detail_id', matchIds)
-		.eq('season_id', seasonId);
+		.in('match_detail_id', matchIds);
+
+	// If seasonId is 0, get all-time stats; otherwise filter by season
+	if (seasonId !== 0) {
+		statsQuery = statsQuery.eq('season_id', seasonId);
+	}
+
+	const { data: playerStats, error } = await statsQuery;
 
 	if (error || !playerStats || playerStats.length === 0) {
 		return null;
@@ -331,7 +347,7 @@ async function getTopPickedMachines(teamId, seasonId) {
 
 	return {
 		teamId: teamId,
-		seasonId: seasonId,
+		seasonId: seasonId === 0 ? 'All-Time' : seasonId,
 		machines: Object.entries(machineCount)
 			.map(([machineId, machineData]) => ({
 				machineId,
@@ -394,7 +410,6 @@ module.exports = {
 	getAttendanceForPlayer,
 	getAverageScoreForMachine,
 	getPlayerMachineAverage,
-	getLeaderboard,
 	getTeamPerformance,
 	getPlayerHistory,
 	getMachineLeaderboard,

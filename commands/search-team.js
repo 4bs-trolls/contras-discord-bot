@@ -10,18 +10,18 @@ module.exports = {
 		.setDescription('Search for a team by name')
 		.addStringOption(option =>
 			option
-				.setName('name')
-				.setDescription('Team name to search for')
+				.setName('team_name')
+				.setDescription('Team name (partial names work too)')
 				.setRequired(true))
 		.addNumberOption(option =>
 			option
 				.setName('season')
-				.setDescription('Season ID (defaults to current season)')
+				.setDescription('Season ID (defaults to current season, use 0 for all-time)')
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
-			const searchTerm = interaction.options.getString('name');
-			const seasonId = interaction.options.getNumber('season') || season;
+			const searchTerm = interaction.options.getString('team_name');
+			const seasonId = interaction.options.getNumber('season') ?? season;
 
 			const teams = await SupabaseHelper.searchTeams(searchTerm);
 

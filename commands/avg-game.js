@@ -9,18 +9,18 @@ module.exports = {
 		.setDescription('Get average score for a pinball machine')
 		.addStringOption(option =>
 			option
-				.setName('machine')
-				.setDescription('Machine ID (e.g., afm, mm, etc.)')
+				.setName('machine_id')
+				.setDescription('Machine ID (use /search-machine to find the ID)')
 				.setRequired(true))
 		.addNumberOption(option =>
 			option
 				.setName('season')
-				.setDescription('Season ID (defaults to current season)')
+				.setDescription('Season ID (defaults to current season, use 0 for all-time)')
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
-			const machineId = interaction.options.getString('machine');
-			const seasonId = interaction.options.getNumber('season') || season;
+			const machineId = interaction.options.getString('machine_id');
+			const seasonId = interaction.options.getNumber('season') ?? season;
 
 			const result = await SupabaseHelper.getAverageScoreForMachine(machineId, seasonId);
 

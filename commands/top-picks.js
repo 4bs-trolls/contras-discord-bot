@@ -9,13 +9,13 @@ module.exports = {
 		.setDescription('View machines an opposing team picks most frequently')
 		.addStringOption(option =>
 			option
-				.setName('team')
-				.setDescription('Team ID (e.g., CDC)')
+				.setName('team_id')
+				.setDescription('Team ID (use /search-team to find the ID)')
 				.setRequired(true))
 		.addNumberOption(option =>
 			option
 				.setName('season')
-				.setDescription('Season ID (defaults to current season)')
+				.setDescription('Season ID (defaults to current season, use 0 for all-time)')
 				.setRequired(false))
 		.addNumberOption(option =>
 			option
@@ -24,8 +24,8 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
-			const teamId = interaction.options.getString('team');
-			const seasonId = interaction.options.getNumber('season') || season;
+			const teamId = interaction.options.getString('team_id');
+			const seasonId = interaction.options.getNumber('season') ?? season;
 			let limit = interaction.options.getNumber('limit') || 10;
 			limit = Math.min(limit, 25); // Cap at 25
 

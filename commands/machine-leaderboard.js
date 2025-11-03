@@ -9,13 +9,13 @@ module.exports = {
 		.setDescription('View top scores on a specific machine')
 		.addStringOption(option =>
 			option
-				.setName('machine')
-				.setDescription('Machine ID (e.g., afm, mm, etc.)')
+				.setName('machine_id')
+				.setDescription('Machine ID (use /search-machine to find the ID)')
 				.setRequired(true))
 		.addNumberOption(option =>
 			option
 				.setName('season')
-				.setDescription('Season ID (defaults to current season)')
+				.setDescription('Season ID (defaults to current season, use 0 for all-time)')
 				.setRequired(false))
 		.addNumberOption(option =>
 			option
@@ -24,8 +24,8 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
-			const machineId = interaction.options.getString('machine');
-			const seasonId = interaction.options.getNumber('season') || season;
+			const machineId = interaction.options.getString('machine_id');
+			const seasonId = interaction.options.getNumber('season') ?? season;
 			let limit = interaction.options.getNumber('limit') || 10;
 			limit = Math.min(limit, 25); // Cap at 25
 

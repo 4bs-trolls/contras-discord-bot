@@ -9,18 +9,18 @@ module.exports = {
 		.setDescription('View team performance statistics')
 		.addStringOption(option =>
 			option
-				.setName('team')
-				.setDescription('Team ID (e.g., CDC)')
+				.setName('team_id')
+				.setDescription('Team ID (use /search-team to find the ID)')
 				.setRequired(true))
 		.addNumberOption(option =>
 			option
 				.setName('season')
-				.setDescription('Season ID (defaults to current season)')
+				.setDescription('Season ID (defaults to current season, use 0 for all-time)')
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
-			const teamId = interaction.options.getString('team');
-			const seasonId = interaction.options.getNumber('season') || season;
+			const teamId = interaction.options.getString('team_id');
+			const seasonId = interaction.options.getNumber('season') ?? season;
 
 			const result = await SupabaseHelper.getTeamPerformance(teamId, seasonId);
 
