@@ -1,0 +1,61 @@
+const { SlashCommandBuilder } = require('discord.js');
+const SupabaseHelper = require('../helpers/SupabaseHelper');
+const { stripIndent } = require('common-tags');
+const season = process.env.SEASON;
+
+module.exports = {
+	data: new SlashCommandBuilder()
+		.setName('player-machine-avg')
+		.setDescription('Get a player\'s average score on a specific machine')
+		.addStringOption(option =>
+			option
+				.setName('player')
+				.setDescription('Player ID')
+				.setRequired(true))
+		.addStringOption(option =>
+			option
+				.setName('machine')
+				.setDescription('Machine ID (e.g., afm, mm, etc.)')
+				.setRequired(true))
+		.addNumberOption(option =>
+			option
+				.setName('season')
+				.setDescription('Season ID (defaults to current season)')
+				.setRequired(false)),
+	async execute(interaction) {
+		try {
+			const playerId = interaction.options.getString('player');
+			const machineId = interaction.options.getString('machine');
+			const seasonId = interaction.options.getNumber('season') || season;
+
+			const result = await SupabaseHelper.getPlayerMachineAverage(playerId, machineId, seasonId);
+
+			if (!result) {
+				await interaction.reply({
+					content: `No data found for player "${playerId}" on machine "${machineId}" in season ${seasonId}.`,
+					ephemeral: true,
+				});
+				return;
+			}
+
+			const message = stripIndent(`
+				**Player Machine Average**
+				Player: ${result.playerName}
+				Machine: ${result.machine}
+				Average Score: ${result.averageScore.toLocaleString('en-US')}
+				Games Played: ${result.gamesPlayed}
+				Season: ${result.seasonId}
+			`);
+
+			await interaction.reply({ content: message, ephemeral: true });
+
+		} catch (error) {
+			console.error('player-machine-avg command error:', error);
+			await interaction.reply({
+				content: 'Failed to retrieve player machine statistics: ' + error.message,
+				ephemeral: true,
+			});
+		}
+	},
+};
+

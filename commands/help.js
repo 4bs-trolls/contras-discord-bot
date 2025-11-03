@@ -17,6 +17,7 @@ function getHelpMessage(roles) {
 	let message;
 	const isCaptain = roles.some(x => x === captain);
 	message = stripIndent(`
+		**General Commands**
 		\`/next-match\` will retrieve the Date, Venue, and Team for the upcoming match
 		\`/links\` returns a set of helpful links
 		\`/stats\` returns your IFPA/MatchPlay links if set; always includes the team stats link
@@ -24,6 +25,21 @@ function getHelpMessage(roles) {
 		\`/server\` returns the name of the server and how many users it has
 		\`/user\` returns the Username of the user who ran the command, and the date/time they joined the server
 		\`/help\` returns this help message
+
+		**Search Commands** (Easy way to find IDs!)
+		\`/search-player <name> [season]\` - Search for a player and get quick stats
+		\`/search-machine <name> [season]\` - Search for a machine and view statistics
+		\`/search-team <name> [season]\` - Search for a team and view info
+
+		**Statistics Commands**
+		\`/avg-game <machine> [season]\` - Get average score for a pinball machine
+		\`/player-machine-avg <player> <machine> [season]\` - Get a player's average on a specific machine
+		\`/leaderboard [season] [limit]\` - View top players by average score
+		\`/machine-leaderboard <machine> [season] [limit]\` - View top scores on a specific machine
+		\`/player-history <player> [season] [limit]\` - View a player's complete game history
+		\`/team-performance <team> [season]\` - View team performance statistics
+		\`/recent-scores [limit]\` - View the most recent game scores
+		\`/top-picks <team> [season] [limit]\` - View machines an opposing team picks most frequently
 	`);
 	if (isCaptain) {
 		message += '\n\n';
