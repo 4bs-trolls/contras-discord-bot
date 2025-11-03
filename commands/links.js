@@ -8,8 +8,8 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.reply(stripIndent`
 		**Team Pages**
-		<https://www.mondaynightpinball.com/teams/CDC>
-		<http://pinballstats.info/search/iprsearch.pl?q=CDC>
+		<https://www.mondaynightpinball.com/teams/TRL>
+		<http://pinballstats.info/search/iprsearch.pl?q=TRL>
 		**Table Info**
 		<https://pintips.net/>
 		<https://replayfoundation.org/papa/>

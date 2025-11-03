@@ -35,6 +35,32 @@ function isUserPartOfRole(user, roleId) {
 	return user.roles.cache.some(role => role.id === roleId);
 }
 
+// Statistics button prefixes
+const STATS_PLAYER_HISTORY_PREFIX = 'stats-player-history';
+const STATS_PLAYER_AVG_PREFIX = 'stats-player-avg';
+const STATS_MACHINE_AVG_PREFIX = 'stats-machine-avg';
+const STATS_MACHINE_LEADERBOARD_PREFIX = 'stats-machine-leaderboard';
+const STATS_TEAM_PERFORMANCE_PREFIX = 'stats-team-performance';
+const STATS_TOP_PICKS_PREFIX = 'stats-top-picks';
+
+function isStatsButton(interaction) {
+	const customId = interaction.customId;
+	return customId.startsWith('stats-');
+}
+
+function createStatsButtonId(prefix, entityId, seasonId) {
+	return `${prefix}:${entityId}:${seasonId}`;
+}
+
+function parseStatsButtonId(customId) {
+	const parts = customId.split(':');
+	return {
+		action: parts[0],
+		entityId: parts[1],
+		seasonId: parts[2],
+	};
+}
+
 module.exports = {
 	sendMessageToChannel,
 	isUserCaptain,
@@ -42,7 +68,16 @@ module.exports = {
 	isUserSub,
 	isSubReaction,
 	isRollcallReaction,
+	isStatsButton,
+	createStatsButtonId,
+	parseStatsButtonId,
 	SUBS_ACCEPT_BUTTON,
 	ROLLCALL_DECLINE_BUTTON,
 	ROLLCALL_ACCEPT_BUTTON,
+	STATS_PLAYER_HISTORY_PREFIX,
+	STATS_PLAYER_AVG_PREFIX,
+	STATS_MACHINE_AVG_PREFIX,
+	STATS_MACHINE_LEADERBOARD_PREFIX,
+	STATS_TEAM_PERFORMANCE_PREFIX,
+	STATS_TOP_PICKS_PREFIX,
 };

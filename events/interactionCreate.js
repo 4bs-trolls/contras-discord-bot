@@ -33,6 +33,12 @@ module.exports = {
 			}
 		} else if (interaction.isButton()) {
 			try {
+				// Handle statistics buttons
+				if (DiscordUtils.isStatsButton(interaction)) {
+					await handleStatsButton(interaction);
+					return;
+				}
+
 				// TODO: Reject interaction and let the user know if they responded with the same status (double click)
 				await interaction.deferReply( { ephemeral: true } );
 				let attendanceMessage = '';
@@ -92,5 +98,146 @@ async function rejectNoNickname(interaction) {
 		.setColor('#FF0000')
 		.setTimestamp();
 	await interaction.reply({ embeds: [embed], ephemeral: true });
+}
+
+async function handleStatsButton(interaction) {
+	await interaction.deferReply({ ephemeral: true });
+
+	const { action, entityId, seasonId } = DiscordUtils.parseStatsButtonId(interaction.customId);
+
+	try {
+		if (action === DiscordUtils.STATS_PLAYER_HISTORY_PREFIX) {
+			const result = await SupabaseHelper.getPlayerHistory(entityId, seasonId);
+			if (!result || !result.games || result.games.length === 0) {
+				await interaction.followUp({
+					content: `No game history found for this player in season ${seasonId}.`,
+					ephemeral: true,
+				});
+				return;
+			}
+
+			const gamesToShow = result.games.slice(0, 15);
+			const historyText = gamesToShow
+				.map((game) => `• **Week ${game.week}** - ${game.machine}: \`${game.score.toLocaleString('en-US')}\` (${game.points} pts vs ${game.opponent})`)
+				.join('\n');
+
+			const message = [
+				`**📜 Player History - ${result.playerName}**`,
+				'',
+				`**Season:** ${result.seasonId} | **Total Games:** ${result.games.length}`,
+				`**Showing:** ${gamesToShow.length} most recent games`,
+				'',
+				historyText,
+			].join('\n');
+
+			await interaction.followUp({ content: message, ephemeral: true });
+
+		} else if (action === DiscordUtils.STATS_MACHINE_AVG_PREFIX) {
+			const result = await SupabaseHelper.getAverageScoreForMachine(entityId, seasonId);
+			if (!result) {
+				await interaction.followUp({
+					content: `No data found for this machine in season ${seasonId}.`,
+					ephemeral: true,
+				});
+				return;
+			}
+
+			const message = [
+				`**📊 Machine Average Statistics**`,
+				'',
+				`**Machine:** ${result.machine}`,
+				`**Average Score:** \`${result.averageScore.toLocaleString('en-US')}\``,
+				`**Games Played:** ${result.gamesPlayed}`,
+				`**Season:** ${result.seasonId}`,
+			].join('\n');
+
+			await interaction.followUp({ content: message, ephemeral: true });
+
+		} else if (action === DiscordUtils.STATS_MACHINE_LEADERBOARD_PREFIX) {
+			const result = await SupabaseHelper.getMachineLeaderboard(entityId, seasonId, 10);
+			if (!result || !result.scores || result.scores.length === 0) {
+				await interaction.followUp({
+					content: `No scores found for this machine in season ${seasonId}.`,
+					ephemeral: true,
+				});
+				return;
+			}
+
+			const scoresText = result.scores
+				.map((score, index) => {
+					const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+					return `${medal} **${score.playerName}**: \`${score.score.toLocaleString('en-US')}\` (Week ${score.week})`;
+				})
+				.join('\n');
+
+			const message = [
+				`**🏆 Machine Leaderboard - ${result.machine}**`,
+				'',
+				`**Season:** ${result.seasonId} | **Top ${result.scores.length} Scores**`,
+				'',
+				scoresText,
+			].join('\n');
+
+			await interaction.followUp({ content: message, ephemeral: true });
+
+		} else if (action === DiscordUtils.STATS_TEAM_PERFORMANCE_PREFIX) {
+			const result = await SupabaseHelper.getTeamPerformance(entityId, seasonId);
+			if (!result) {
+				await interaction.followUp({
+					content: `No performance data found for this team in season ${seasonId}.`,
+					ephemeral: true,
+				});
+				return;
+			}
+
+			const message = [
+				`**🎯 Team Performance - Season ${result.seasonId}**`,
+				'',
+				`**Team:** ${result.teamId}`,
+				`**Matches Played:** ${result.matchesPlayed}`,
+				`**Total Points:** ${result.totalPoints}`,
+				`**Average Per Match:** \`${result.averagePointsPerMatch}\``,
+			].join('\n');
+
+			await interaction.followUp({ content: message, ephemeral: true });
+
+		} else if (action === DiscordUtils.STATS_TOP_PICKS_PREFIX) {
+			const result = await SupabaseHelper.getTopPickedMachines(entityId, seasonId);
+			if (!result || !result.machines || result.machines.length === 0) {
+				await interaction.followUp({
+					content: `No machine selection data found for this team in season ${seasonId}.`,
+					ephemeral: true,
+				});
+				return;
+			}
+
+			const machinesToShow = result.machines.slice(0, 10);
+			const machinesText = machinesToShow
+				.map((machine, index) => {
+					const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+					const plural = machine.pickCount === 1 ? 'time' : 'times';
+					return `${medal} **${machine.machineName}**: \`${machine.pickCount}\` ${plural}`;
+				})
+				.join('\n');
+
+			const message = [
+				`**🎰 Top Machine Picks**`,
+				'',
+				`**Team:** ${result.teamId} | **Season:** ${result.seasonId}`,
+				`**Showing:** Top ${machinesToShow.length} most picked machines`,
+				'',
+				machinesText,
+			].join('\n');
+
+			await interaction.followUp({ content: message, ephemeral: true });
+		}
+
+	} catch (error) {
+		console.error('Error handling stats button:', error);
+		await interaction.followUp({
+			content: 'Failed to retrieve statistics: ' + error.message,
+			ephemeral: true,
+		});
+	}
 }
 
