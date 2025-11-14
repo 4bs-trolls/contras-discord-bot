@@ -1,4 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
+const logger = require('./Logger');
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 // Create a single supabase client for interacting with your database
@@ -37,6 +38,7 @@ async function updateAttendance(attendanceData) {
 		.from(attendanceTableName)
 		.upsert(attendanceData);
 	if (error) {
+		logger.error('Unable to update attendance', { error: error.message, attendanceData });
 		return `Unable to update attendance: ${error}`;
 	} else {
 		return data;
@@ -50,6 +52,7 @@ async function getAttendance(week, seasonParam) {
 		.eq('week', week)
 		.eq('season', seasonParam);
 	if (error) {
+		logger.error('Unable to retrieve attendance', { error: error.message, week, season: seasonParam });
 		return `Unable to retrieve attendance: ${error}`;
 	} else {
 		return attendance.map((player) => {
@@ -70,6 +73,7 @@ async function getAttendanceForPlayer(player_id, week, seasonParam) {
 		.eq('week', week)
 		.eq('season', seasonParam);
 	if (error) {
+		logger.error('Unable to retrieve attendance for player', { error: error.message, player_id, week, season: seasonParam });
 		return `Unable to retrieve attendance: ${error}`;
 	} else {
 		return {
@@ -366,7 +370,7 @@ async function searchPlayers(searchTerm) {
 		.limit(10);
 
 	if (error) {
-		console.error('Error searching players:', error);
+		logger.error('Error searching players', { error: error.message, searchTerm });
 		return null;
 	}
 
@@ -381,7 +385,7 @@ async function searchMachines(searchTerm) {
 		.limit(10);
 
 	if (error) {
-		console.error('Error searching machines:', error);
+		logger.error('Error searching machines', { error: error.message, searchTerm });
 		return null;
 	}
 
@@ -396,7 +400,7 @@ async function searchTeams(searchTerm) {
 		.limit(10);
 
 	if (error) {
-		console.error('Error searching teams:', error);
+		logger.error('Error searching teams', { error: error.message, searchTerm });
 		return null;
 	}
 
