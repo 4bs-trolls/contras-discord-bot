@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
-const MessageFormatter = require('../helpers/MessageFormatter');
 const season = process.env.SEASON;
 
 module.exports = {
