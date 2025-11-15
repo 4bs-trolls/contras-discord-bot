@@ -22,7 +22,7 @@ module.exports = {
 			} else {
 				const acceptButton = new ButtonBuilder()
 					.setCustomId(ROLLCALL_ACCEPT_BUTTON)
-					.setLabel('TROLLS! UP')
+					.setLabel('T-R-O-(2x)L-S')
 					.setEmoji(TROLL_EMOJI_ID)
 					.setStyle(ButtonStyle.Danger);
 				const declineButton = new ButtonBuilder()
