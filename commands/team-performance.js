@@ -18,13 +18,14 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
+			await interaction.deferReply({ ephemeral: true });
 			const teamId = interaction.options.getString('team_id');
 			const seasonId = interaction.options.getNumber('season') ?? season;
 
 			const result = await SupabaseHelper.getTeamPerformance(teamId, seasonId);
 
 			if (!result) {
-				await interaction.reply({
+				await interaction.editReply({
 					content: `No performance data found for team "${teamId}" in season ${seasonId}.`,
 					ephemeral: true,
 				});
@@ -40,11 +41,11 @@ module.exports = {
 				`**Average Per Match:** \`${result.averagePointsPerMatch}\``,
 			].join('\n');
 
-			await interaction.reply({ content: message, ephemeral: true });
+			await interaction.editReply({ content: message, ephemeral: true });
 
 		} catch (error) {
 			console.error('team-performance command error:', error);
-			await interaction.reply({
+			await interaction.editReply({
 				content: 'Failed to retrieve team performance: ' + error.message,
 				ephemeral: true,
 			});

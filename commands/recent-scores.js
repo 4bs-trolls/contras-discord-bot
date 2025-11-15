@@ -17,6 +17,7 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
+			await interaction.deferReply({ ephemeral: true });
 			const machineId = interaction.options.getString('machine_id');
 			let limit = interaction.options.getNumber('limit') || 10;
 			// Cap at 25
@@ -25,7 +26,7 @@ module.exports = {
 			const scores = await SupabaseHelper.getRecentScores(machineId, limit);
 
 			if (!scores || scores.length === 0) {
-				await interaction.reply({
+				await interaction.editReply({
 					content: `No recent scores found for machine "${machineId}".`,
 					ephemeral: true,
 				});
@@ -44,11 +45,11 @@ module.exports = {
 				scoresText,
 			].join('\n');
 
-			await interaction.reply({ content: message, ephemeral: true });
+			await interaction.editReply({ content: message, ephemeral: true });
 
 		} catch (error) {
 			console.error('recent-scores command error:', error);
-			await interaction.reply({
+			await interaction.editReply({
 				content: 'Failed to retrieve recent scores: ' + error.message,
 				ephemeral: true,
 			});

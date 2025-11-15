@@ -19,13 +19,14 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
+			await interaction.deferReply({ ephemeral: true });
 			const searchTerm = interaction.options.getString('team_name');
 			const seasonId = interaction.options.getNumber('season') ?? season;
 
 			const teams = await SupabaseHelper.searchTeams(searchTerm);
 
 			if (!teams || teams.length === 0) {
-				await interaction.reply({
+				await interaction.editReply({
 					content: `No teams found matching "${searchTerm}".`,
 					ephemeral: true,
 				});
@@ -56,7 +57,7 @@ module.exports = {
 
 				const buttonRow = new ActionRowBuilder().addComponents(performanceButton, topPicksButton);
 
-				await interaction.reply({ content: message, components: [buttonRow], ephemeral: true });
+				await interaction.editReply({ content: message, components: [buttonRow], ephemeral: true });
 			} else {
 				// Multiple teams found, display a list
 				const teamList = teams
@@ -73,12 +74,12 @@ module.exports = {
 					`• \`/top-picks <team-id>\``,
 				].join('\n');
 
-				await interaction.reply({ content: message, ephemeral: true });
+				await interaction.editReply({ content: message, ephemeral: true });
 			}
 
 		} catch (error) {
 			console.error('search-team command error:', error);
-			await interaction.reply({
+			await interaction.editReply({
 				content: 'Failed to search for teams: ' + error.message,
 				ephemeral: true,
 			});

@@ -6,6 +6,7 @@ module.exports = {
 		.setName('help')
 		.setDescription('Breakdown of each command available'),
 	async execute(interaction) {
+		await interaction.deferReply({ ephemeral: true });
 		const roles = getUserRoles(interaction);
 		const isCaptain = roles.some(x => x === captain);
 
@@ -61,7 +62,7 @@ module.exports = {
 		].join('\n');
 
 		// Send messages
-		await interaction.reply({ content: generalMessage, ephemeral: true });
+		await interaction.editReply({ content: generalMessage, ephemeral: true });
 		await interaction.followUp({ content: searchMessage, ephemeral: true });
 		await interaction.followUp({ content: statsMessage, ephemeral: true });
 

@@ -23,6 +23,7 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
+			await interaction.deferReply({ ephemeral: true });
 			const teamId = interaction.options.getString('team_id');
 			const seasonId = interaction.options.getNumber('season') ?? season;
 			let limit = interaction.options.getNumber('limit') || 10;
@@ -31,7 +32,7 @@ module.exports = {
 			const result = await SupabaseHelper.getTopPickedMachines(teamId, seasonId);
 
 			if (!result || !result.machines || result.machines.length === 0) {
-				await interaction.reply({
+				await interaction.editReply({
 					content: `No machine selection data found for team "${teamId}" in season ${seasonId}.`,
 					ephemeral: true,
 				});
@@ -57,11 +58,11 @@ module.exports = {
 				machinesText,
 			].join('\n');
 
-			await interaction.reply({ content: message, ephemeral: true });
+			await interaction.editReply({ content: message, ephemeral: true });
 
 		} catch (error) {
 			console.error('top-picks command error:', error);
-			await interaction.reply({
+			await interaction.editReply({
 				content: 'Failed to retrieve top picks: ' + error.message,
 				ephemeral: true,
 			});

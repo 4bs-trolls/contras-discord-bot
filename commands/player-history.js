@@ -23,6 +23,7 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
+			await interaction.deferReply({ ephemeral: true });
 			const playerId = interaction.options.getString('player_id');
 			const seasonId = interaction.options.getNumber('season') ?? season;
 			let limit = interaction.options.getNumber('limit') || 15;
@@ -31,7 +32,7 @@ module.exports = {
 			const result = await SupabaseHelper.getPlayerHistory(playerId, seasonId);
 
 			if (!result || !result.games || result.games.length === 0) {
-				await interaction.reply({
+				await interaction.editReply({
 					content: `No game history found for player "${playerId}" in season ${seasonId}.`,
 					ephemeral: true,
 				});
@@ -54,11 +55,11 @@ module.exports = {
 				historyText,
 			].join('\n');
 
-			await interaction.reply({ content: message, ephemeral: true });
+			await interaction.editReply({ content: message, ephemeral: true });
 
 		} catch (error) {
 			console.error('player-history command error:', error);
-			await interaction.reply({
+			await interaction.editReply({
 				content: 'Failed to retrieve player history: ' + error.message,
 				ephemeral: true,
 			});

@@ -19,13 +19,14 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
+			await interaction.deferReply({ ephemeral: true });
 			const searchTerm = interaction.options.getString('machine_name');
 			const seasonId = interaction.options.getNumber('season') ?? season;
 
 			const machines = await SupabaseHelper.searchMachines(searchTerm);
 
 			if (!machines || machines.length === 0) {
-				await interaction.reply({
+				await interaction.editReply({
 					content: `No machines found matching "${searchTerm}".`,
 					ephemeral: true,
 				});
@@ -56,7 +57,7 @@ module.exports = {
 
 				const buttonRow = new ActionRowBuilder().addComponents(avgButton, leaderboardButton);
 
-				await interaction.reply({ content: message, components: [buttonRow], ephemeral: true });
+				await interaction.editReply({ content: message, components: [buttonRow], ephemeral: true });
 			} else {
 				// Multiple machines found, display a list
 				const machineList = machines
@@ -73,12 +74,12 @@ module.exports = {
 					`• \`/machine-leaderboard <machine-id>\``,
 				].join('\n');
 
-				await interaction.reply({ content: message, ephemeral: true });
+				await interaction.editReply({ content: message, ephemeral: true });
 			}
 
 		} catch (error) {
 			console.error('search-machine command error:', error);
-			await interaction.reply({
+			await interaction.editReply({
 				content: 'Failed to search for machines: ' + error.message,
 				ephemeral: true,
 			});

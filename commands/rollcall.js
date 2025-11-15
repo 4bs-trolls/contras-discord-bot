@@ -15,9 +15,10 @@ module.exports = {
 		.setDefaultMemberPermissions('0'),
 	async execute(interaction) {
 		try {
+			await interaction.deferReply({ ephemeral: true });
 			const result = await SupabaseHelper.getUpcomingMatch();
 			if (result === 'There are no upcoming matches') {
-				await interaction.reply({ content: 'There are no upcoming matches to rollcall for', ephemeral: true });
+				await interaction.editReply({ content: 'There are no upcoming matches to rollcall for', ephemeral: true });
 			} else {
 				const acceptButton = new ButtonBuilder()
 					.setCustomId(ROLLCALL_ACCEPT_BUTTON)
@@ -31,15 +32,15 @@ module.exports = {
 				const replyButtons = new ActionRowBuilder().addComponents(acceptButton, declineButton);
 				const { week, date, venue, team } = result;
 				const attendanceData = await AttendanceHelper.setupAttendanceForWeek(week, season, interaction);
-				let normalizedAttendanceData = AttendanceHelper.normalizeAttendanceData(attendanceData.players, week, date, venue, team);
+				const normalizedAttendanceData = AttendanceHelper.normalizeAttendanceData(attendanceData.players, week, date, venue, team);
 				const embed = AttendanceHelper.turnAttendanceIntoRollcallEmbed(normalizedAttendanceData);
 				const attendanceEmbed = AttendanceHelper.turnAttendanceIntoEmbed(normalizedAttendanceData);
-				await interaction.reply({ content: 'Rollcall initiated', ephemeral: true });
+				await interaction.editReply({ content: 'Rollcall initiated', ephemeral: true });
 
 				const announcementContent = `@everyone It is that time again! Please use the buttons below to let us know your availability for Week ${week} as soon as you can... \n\n`;
 				await DiscordUtils.sendMessageToChannel(interaction, announcementsChannelId, announcementContent, [embed], [replyButtons]);
 
-				const attendanceContent = `Below are attendance records for Week ${(normalizedAttendanceData.week)} against **${(normalizedAttendanceData.team)}** on **${(normalizedAttendanceData.date)}**`
+				const attendanceContent = `Below are attendance records for Week ${(normalizedAttendanceData.week)} against **${(normalizedAttendanceData.team)}** on **${(normalizedAttendanceData.date)}**`;
 				await DiscordUtils.sendMessageToChannel(interaction, attendanceChannelId, attendanceContent, [attendanceEmbed]);
 
 			}
@@ -52,5 +53,4 @@ module.exports = {
 		}
 	},
 };
-
 

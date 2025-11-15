@@ -18,13 +18,14 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
+			await interaction.deferReply({ ephemeral: true });
 			const machineId = interaction.options.getString('machine_id');
 			const seasonId = interaction.options.getNumber('season') ?? season;
 
 			const result = await SupabaseHelper.getAverageScoreForMachine(machineId, seasonId);
 
 			if (!result) {
-				await interaction.reply({
+				await interaction.editReply({
 					content: `No data found for machine "${machineId}" in season ${seasonId}. Make sure you're using the machine ID (e.g., "afm", "mm", etc.).`,
 					ephemeral: true,
 				});
@@ -40,11 +41,11 @@ module.exports = {
 				`**Season:** ${result.seasonId}`,
 			].join('\n');
 
-			await interaction.reply({ content: message, ephemeral: true });
+			await interaction.editReply({ content: message, ephemeral: true });
 
 		} catch (error) {
 			console.error('avg-game command error:', error);
-			await interaction.reply({
+			await interaction.editReply({
 				content: 'Failed to retrieve machine statistics: ' + error.message,
 				ephemeral: true,
 			});

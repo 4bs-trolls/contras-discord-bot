@@ -23,6 +23,7 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
+			await interaction.deferReply({ ephemeral: true });
 			const machineId = interaction.options.getString('machine_id');
 			const seasonId = interaction.options.getNumber('season') ?? season;
 			let limit = interaction.options.getNumber('limit') || 10;
@@ -31,7 +32,7 @@ module.exports = {
 			const result = await SupabaseHelper.getMachineLeaderboard(machineId, seasonId, limit);
 
 			if (!result || !result.scores || result.scores.length === 0) {
-				await interaction.reply({
+				await interaction.editReply({
 					content: `No scores found for machine "${machineId}" in season ${seasonId}.`,
 					ephemeral: true,
 				});
@@ -53,11 +54,11 @@ module.exports = {
 				scoresText,
 			].join('\n');
 
-			await interaction.reply({ content: message, ephemeral: true });
+			await interaction.editReply({ content: message, ephemeral: true });
 
 		} catch (error) {
 			console.error('machine-leaderboard command error:', error);
-			await interaction.reply({
+			await interaction.editReply({
 				content: 'Failed to retrieve machine leaderboard: ' + error.message,
 				ephemeral: true,
 			});

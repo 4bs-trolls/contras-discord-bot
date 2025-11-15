@@ -19,13 +19,14 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
+			await interaction.deferReply({ ephemeral: true });
 			const searchTerm = interaction.options.getString('player_name');
 			const seasonId = interaction.options.getNumber('season') ?? season;
 
 			const players = await SupabaseHelper.searchPlayers(searchTerm);
 
 			if (!players || players.length === 0) {
-				await interaction.reply({
+				await interaction.editReply({
 					content: `No players found matching "${searchTerm}".`,
 					ephemeral: true,
 				});
@@ -52,7 +53,7 @@ module.exports = {
 
 				const buttonRow = new ActionRowBuilder().addComponents(historyButton);
 
-				await interaction.reply({ content: message, components: [buttonRow], ephemeral: true });
+				await interaction.editReply({ content: message, components: [buttonRow], ephemeral: true });
 			} else {
 				// Multiple players found, display a list
 				const playerList = players
@@ -69,12 +70,12 @@ module.exports = {
 					`• \`/player-machine-avg <player-id> <machine-id>\``,
 				].join('\n');
 
-				await interaction.reply({ content: message, ephemeral: true });
+				await interaction.editReply({ content: message, ephemeral: true });
 			}
 
 		} catch (error) {
 			console.error('search-player command error:', error);
-			await interaction.reply({
+			await interaction.editReply({
 				content: 'Failed to search for players: ' + error.message,
 				ephemeral: true,
 			});
