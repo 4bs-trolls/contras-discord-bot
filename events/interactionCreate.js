@@ -1,5 +1,6 @@
 const { Events, EmbedBuilder, channelMention } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
+const MessageFormatter = require('../helpers/MessageFormatter');
 const { AttendanceStatus } = require('../helpers/AttendanceHelper');
 const AttendanceHelper = require('../helpers/AttendanceHelper');
 const DiscordUtils = require('../helpers/DiscordUtils');
@@ -147,19 +148,7 @@ async function handleStatsButton(interaction) {
 				return;
 			}
 
-			const gamesToShow = result.games.slice(0, 15);
-			const historyText = gamesToShow
-				.map((game) => `• **Week ${game.week}** - ${game.machine}: \`${game.score.toLocaleString('en-US')}\` (${game.points} pts vs ${game.opponent})`)
-				.join('\n');
-
-			const message = [
-				`**📜 Player History - ${result.playerName}**`,
-				'',
-				`**Season:** ${result.seasonId} | **Total Games:** ${result.games.length}`,
-				`**Showing:** ${gamesToShow.length} most recent games`,
-				'',
-				historyText,
-			].join('\n');
+			const message = MessageFormatter.formatPlayerHistory(result, 15);
 
 			await interaction.followUp({ content: message, ephemeral: true });
 
@@ -173,14 +162,7 @@ async function handleStatsButton(interaction) {
 				return;
 			}
 
-			const message = [
-				`**📊 Machine Average Statistics**`,
-				'',
-				`**Machine:** ${result.machine}`,
-				`**Average Score:** \`${result.averageScore.toLocaleString('en-US')}\``,
-				`**Games Played:** ${result.gamesPlayed}`,
-				`**Season:** ${result.seasonId}`,
-			].join('\n');
+			const message = MessageFormatter.formatMachineAverage(result);
 
 			await interaction.followUp({ content: message, ephemeral: true });
 
@@ -194,20 +176,7 @@ async function handleStatsButton(interaction) {
 				return;
 			}
 
-			const scoresText = result.scores
-				.map((score, index) => {
-					const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
-					return `${medal} **${score.playerName}**: \`${score.score.toLocaleString('en-US')}\` (Week ${score.week})`;
-				})
-				.join('\n');
-
-			const message = [
-				`**🏆 Machine Leaderboard - ${result.machine}**`,
-				'',
-				`**Season:** ${result.seasonId} | **Top ${result.scores.length} Scores**`,
-				'',
-				scoresText,
-			].join('\n');
+			const message = MessageFormatter.formatMachineLeaderboard(result);
 
 			await interaction.followUp({ content: message, ephemeral: true });
 
@@ -221,14 +190,7 @@ async function handleStatsButton(interaction) {
 				return;
 			}
 
-			const message = [
-				`**🎯 Team Performance - Season ${result.seasonId}**`,
-				'',
-				`**Team:** ${result.teamId}`,
-				`**Matches Played:** ${result.matchesPlayed}`,
-				`**Total Points:** ${result.totalPoints}`,
-				`**Average Per Match:** \`${result.averagePointsPerMatch}\``,
-			].join('\n');
+			const message = MessageFormatter.formatTeamPerformance(result);
 
 			await interaction.followUp({ content: message, ephemeral: true });
 
@@ -242,23 +204,7 @@ async function handleStatsButton(interaction) {
 				return;
 			}
 
-			const machinesToShow = result.machines.slice(0, 10);
-			const machinesText = machinesToShow
-				.map((machine, index) => {
-					const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
-					const plural = machine.pickCount === 1 ? 'time' : 'times';
-					return `${medal} **${machine.machineName}**: \`${machine.pickCount}\` ${plural}`;
-				})
-				.join('\n');
-
-			const message = [
-				`**🎰 Top Machine Picks**`,
-				'',
-				`**Team:** ${result.teamId} | **Season:** ${result.seasonId}`,
-				`**Showing:** Top ${machinesToShow.length} most picked machines`,
-				'',
-				machinesText,
-			].join('\n');
+			const message = MessageFormatter.formatTopPicks(result, 20);
 
 			await interaction.followUp({ content: message, ephemeral: true });
 		}

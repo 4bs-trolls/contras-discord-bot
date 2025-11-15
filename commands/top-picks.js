@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
+const MessageFormatter = require('../helpers/MessageFormatter');
 const season = process.env.SEASON;
 
 module.exports = {
@@ -39,24 +40,7 @@ module.exports = {
 				return;
 			}
 
-			const machinesToShow = result.machines.slice(0, limit);
-
-			const machinesText = machinesToShow
-				.map((machine, index) => {
-					const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
-					const plural = machine.pickCount === 1 ? 'time' : 'times';
-					return `${medal} **${machine.machineName}**: \`${machine.pickCount}\` ${plural}`;
-				})
-				.join('\n');
-
-			const message = [
-				`**🎰 Top Machine Picks**`,
-				'',
-				`**Team:** ${result.teamId} | **Season:** ${result.seasonId}`,
-				`**Showing:** Top ${machinesToShow.length} most picked machines`,
-				'',
-				machinesText,
-			].join('\n');
+			const message = MessageFormatter.formatTopPicks(result, limit);
 
 			await interaction.editReply({ content: message, ephemeral: true });
 

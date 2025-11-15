@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
+const MessageFormatter = require('../helpers/MessageFormatter');
 const season = process.env.SEASON;
 
 module.exports = {
@@ -38,6 +39,8 @@ module.exports = {
 				return;
 			}
 
+			// Note: Player machine average uses same format as machine average, but with player name
+			// We'll create a custom message here since formatMachineAverage doesn't include player name
 			const message = [
 				`**📊 Player Machine Average**`,
 				'',

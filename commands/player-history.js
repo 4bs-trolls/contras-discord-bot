@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
+const MessageFormatter = require('../helpers/MessageFormatter');
 const season = process.env.SEASON;
 
 module.exports = {
@@ -39,21 +40,7 @@ module.exports = {
 				return;
 			}
 
-			// Limit the number of games displayed
-			const gamesToShow = result.games.slice(0, limit);
-
-			const historyText = gamesToShow
-				.map((game) => `• **Week ${game.week}** - ${game.machine}: \`${game.score.toLocaleString('en-US')}\` (${game.points} pts vs ${game.opponent})`)
-				.join('\n');
-
-			const message = [
-				`**📜 Player History - ${result.playerName}**`,
-				'',
-				`**Season:** ${result.seasonId} | **Total Games:** ${result.games.length}`,
-				`**Showing:** ${gamesToShow.length} most recent games`,
-				'',
-				historyText,
-			].join('\n');
+			const message = MessageFormatter.formatPlayerHistory(result, limit);
 
 			await interaction.editReply({ content: message, ephemeral: true });
 

@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
+const MessageFormatter = require('../helpers/MessageFormatter');
 const season = process.env.SEASON;
 
 module.exports = {
@@ -39,20 +40,7 @@ module.exports = {
 				return;
 			}
 
-			const scoresText = result.scores
-				.map((score, index) => {
-					const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
-					return `${medal} **${score.playerName}**: \`${score.score.toLocaleString('en-US')}\` (Week ${score.week})`;
-				})
-				.join('\n');
-
-			const message = [
-				`**🏆 Machine Leaderboard - ${result.machine}**`,
-				'',
-				`**Season:** ${result.seasonId} | **Top ${result.scores.length} Scores**`,
-				'',
-				scoresText,
-			].join('\n');
+			const message = MessageFormatter.formatMachineLeaderboard(result);
 
 			await interaction.editReply({ content: message, ephemeral: true });
 

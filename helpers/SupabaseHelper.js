@@ -322,7 +322,7 @@ async function getTopPickedMachines(teamId, seasonId) {
 	// Get all player stats for those matches
 	let statsQuery = supabase
 		.from('league_player_stats')
-		.select('machine_id, league_machines(name)')
+		.select('machine_id, score, team_id, league_machines(name)')
 		.in('match_detail_id', matchIds);
 
 	// If seasonId is 0, get all-time stats; otherwise filter by season
@@ -336,7 +336,7 @@ async function getTopPickedMachines(teamId, seasonId) {
 		return null;
 	}
 
-	// Count machine occurrences
+	// Count machine occurrences and track scores for the specified team
 	const machineCount = {};
 	playerStats.forEach(record => {
 		const machineId = record.machine_id;
@@ -344,20 +344,33 @@ async function getTopPickedMachines(teamId, seasonId) {
 			machineCount[machineId] = {
 				name: record.league_machines?.name || 'Unknown',
 				count: 0,
+				scores: [], // Track scores
 			};
 		}
 		machineCount[machineId].count += 1;
+		
+		// Add score if it's from the specified team
+		if (record.team_id === teamId && record.score) {
+			machineCount[machineId].scores.push(Number(record.score));
+		}
 	});
 
 	return {
 		teamId: teamId,
 		seasonId: seasonId === 0 ? 'All-Time' : seasonId,
 		machines: Object.entries(machineCount)
-			.map(([machineId, machineData]) => ({
-				machineId,
-				machineName: machineData.name,
-				pickCount: machineData.count,
-			}))
+			.map(([machineId, machineData]) => {
+				const avg = machineData.scores.length > 0
+					? Math.round(machineData.scores.reduce((a, b) => a + b, 0) / machineData.scores.length)
+					: null;
+				return {
+					machineId,
+					machineName: machineData.name,
+					pickCount: machineData.count,
+					teamAverage: avg, // NEW
+					gamesPlayed: machineData.scores.length, // NEW
+				};
+			})
 			.sort((a, b) => b.pickCount - a.pickCount),
 	};
 }

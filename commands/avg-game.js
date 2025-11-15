@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
+const MessageFormatter = require('../helpers/MessageFormatter');
 const season = process.env.SEASON;
 
 module.exports = {
@@ -32,14 +33,7 @@ module.exports = {
 				return;
 			}
 
-			const message = [
-				`**📊 Machine Average Statistics**`,
-				'',
-				`**Machine:** ${result.machine}`,
-				`**Average Score:** \`${result.averageScore.toLocaleString('en-US')}\``,
-				`**Games Played:** ${result.gamesPlayed}`,
-				`**Season:** ${result.seasonId}`,
-			].join('\n');
+			const message = MessageFormatter.formatMachineAverage(result);
 
 			await interaction.editReply({ content: message, ephemeral: true });
 
