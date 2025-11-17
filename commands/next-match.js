@@ -7,6 +7,7 @@ module.exports = {
         .setDescription('View the upcoming match details'),
 
     async execute(interaction) {
+        await interaction.deferReply({ ephemeral: true });
         let message = '';
         try {
             let result = await SupabaseHelper.getUpcomingMatch();
@@ -23,6 +24,6 @@ module.exports = {
             message = 'Failed to retrieve this week\'s data';
         }
 
-        await interaction.reply(message);
+        await interaction.editReply(message);
     },
 };

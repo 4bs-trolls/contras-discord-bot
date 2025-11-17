@@ -1,5 +1,8 @@
 const { SlashCommandBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
+const statsChannelIds = process.env.STATS_CHANNEL_ID ? process.env.STATS_CHANNEL_ID.split(',').map(id => id.trim()) : [];
+const captainStatsChannelIds = process.env.CAPTAIN_STATS_CHANNEL_ID ? process.env.CAPTAIN_STATS_CHANNEL_ID.split(',').map(id => id.trim()) : [];
+const captainRoleId = process.env.CAPTAIN_ROLE_ID;
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -17,6 +20,19 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
+			const isCaptain = captainRoleId && interaction.member?.roles.cache.has(captainRoleId);
+			const allowedChannels = isCaptain ? [...statsChannelIds, ...captainStatsChannelIds] : statsChannelIds;
+			
+			if (!allowedChannels.includes(interaction.channelId)) {
+				const channelMentions = allowedChannels.map(id => `<#${id}>`).join(', ');
+				await interaction.reply({
+					content: `This command can only be used in the following channels: ${channelMentions}.`,
+					ephemeral: true,
+				});
+				return;
+			}
+
+			await interaction.deferReply();
 			const machineId = interaction.options.getString('machine_id');
 			let limit = interaction.options.getNumber('limit') || 10;
 			// Cap at 25
@@ -25,7 +41,7 @@ module.exports = {
 			const scores = await SupabaseHelper.getRecentScores(machineId, limit);
 
 			if (!scores || scores.length === 0) {
-				await interaction.reply({
+				await interaction.editReply({
 					content: `No recent scores found for machine "${machineId}".`,
 					ephemeral: true,
 				});
@@ -44,11 +60,11 @@ module.exports = {
 				scoresText,
 			].join('\n');
 
-			await interaction.reply({ content: message, ephemeral: true });
+			await interaction.editReply({ content: message });
 
 		} catch (error) {
 			console.error('recent-scores command error:', error);
-			await interaction.reply({
+			await interaction.editReply({
 				content: 'Failed to retrieve recent scores: ' + error.message,
 				ephemeral: true,
 			});

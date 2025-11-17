@@ -1,6 +1,10 @@
 const { SlashCommandBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
+const MessageFormatter = require('../helpers/MessageFormatter');
 const season = process.env.SEASON;
+const statsChannelIds = process.env.STATS_CHANNEL_ID ? process.env.STATS_CHANNEL_ID.split(',').map(id => id.trim()) : [];
+const captainStatsChannelIds = process.env.CAPTAIN_STATS_CHANNEL_ID ? process.env.CAPTAIN_STATS_CHANNEL_ID.split(',').map(id => id.trim()) : [];
+const captainRoleId = process.env.CAPTAIN_ROLE_ID;
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -23,6 +27,19 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
+			const isCaptain = captainRoleId && interaction.member?.roles.cache.has(captainRoleId);
+			const allowedChannels = isCaptain ? [...statsChannelIds, ...captainStatsChannelIds] : statsChannelIds;
+			
+			if (!allowedChannels.includes(interaction.channelId)) {
+				const channelMentions = allowedChannels.map(id => `<#${id}>`).join(', ');
+				await interaction.reply({
+					content: `This command can only be used in the following channels: ${channelMentions}.`,
+					ephemeral: true,
+				});
+				return;
+			}
+
+			await interaction.deferReply();
 			const playerId = interaction.options.getString('player_id');
 			const seasonId = interaction.options.getNumber('season') ?? season;
 			let limit = interaction.options.getNumber('limit') || 15;
@@ -31,34 +48,20 @@ module.exports = {
 			const result = await SupabaseHelper.getPlayerHistory(playerId, seasonId);
 
 			if (!result || !result.games || result.games.length === 0) {
-				await interaction.reply({
+				await interaction.editReply({
 					content: `No game history found for player "${playerId}" in season ${seasonId}.`,
 					ephemeral: true,
 				});
 				return;
 			}
 
-			// Limit the number of games displayed
-			const gamesToShow = result.games.slice(0, limit);
+			const message = MessageFormatter.formatPlayerHistory(result, limit);
 
-			const historyText = gamesToShow
-				.map((game) => `• **Week ${game.week}** - ${game.machine}: \`${game.score.toLocaleString('en-US')}\` (${game.points} pts vs ${game.opponent})`)
-				.join('\n');
-
-			const message = [
-				`**📜 Player History - ${result.playerName}**`,
-				'',
-				`**Season:** ${result.seasonId} | **Total Games:** ${result.games.length}`,
-				`**Showing:** ${gamesToShow.length} most recent games`,
-				'',
-				historyText,
-			].join('\n');
-
-			await interaction.reply({ content: message, ephemeral: true });
+			await interaction.editReply({ content: message });
 
 		} catch (error) {
 			console.error('player-history command error:', error);
-			await interaction.reply({
+			await interaction.editReply({
 				content: 'Failed to retrieve player history: ' + error.message,
 				ephemeral: true,
 			});

@@ -2,6 +2,9 @@ const { SlashCommandBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder } = re
 const SupabaseHelper = require('../helpers/SupabaseHelper');
 const DiscordUtils = require('../helpers/DiscordUtils');
 const season = process.env.SEASON;
+const statsChannelIds = process.env.STATS_CHANNEL_ID ? process.env.STATS_CHANNEL_ID.split(',').map(id => id.trim()) : [];
+const captainStatsChannelIds = process.env.CAPTAIN_STATS_CHANNEL_ID ? process.env.CAPTAIN_STATS_CHANNEL_ID.split(',').map(id => id.trim()) : [];
+const captainRoleId = process.env.CAPTAIN_ROLE_ID;
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -19,13 +22,26 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
+			const isCaptain = captainRoleId && interaction.member?.roles.cache.has(captainRoleId);
+			const allowedChannels = isCaptain ? [...statsChannelIds, ...captainStatsChannelIds] : statsChannelIds;
+			
+			if (!allowedChannels.includes(interaction.channelId)) {
+				const channelMentions = allowedChannels.map(id => `<#${id}>`).join(', ');
+				await interaction.reply({
+					content: `This command can only be used in the following channels: ${channelMentions}.`,
+					ephemeral: true,
+				});
+				return;
+			}
+
+			await interaction.deferReply();
 			const searchTerm = interaction.options.getString('player_name');
 			const seasonId = interaction.options.getNumber('season') ?? season;
 
 			const players = await SupabaseHelper.searchPlayers(searchTerm);
 
 			if (!players || players.length === 0) {
-				await interaction.reply({
+				await interaction.editReply({
 					content: `No players found matching "${searchTerm}".`,
 					ephemeral: true,
 				});
@@ -52,7 +68,7 @@ module.exports = {
 
 				const buttonRow = new ActionRowBuilder().addComponents(historyButton);
 
-				await interaction.reply({ content: message, components: [buttonRow], ephemeral: true });
+				await interaction.editReply({ content: message, components: [buttonRow] });
 			} else {
 				// Multiple players found, display a list
 				const playerList = players
@@ -69,12 +85,12 @@ module.exports = {
 					`• \`/player-machine-avg <player-id> <machine-id>\``,
 				].join('\n');
 
-				await interaction.reply({ content: message, ephemeral: true });
+				await interaction.editReply({ content: message });
 			}
 
 		} catch (error) {
 			console.error('search-player command error:', error);
-			await interaction.reply({
+			await interaction.editReply({
 				content: 'Failed to search for players: ' + error.message,
 				ephemeral: true,
 			});

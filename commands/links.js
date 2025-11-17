@@ -6,7 +6,8 @@ module.exports = {
 		.setName('links')
 		.setDescription('Replies with helpful links'),
 	async execute(interaction) {
-		await interaction.reply(stripIndent`
+		await interaction.deferReply({ ephemeral: true });
+		await interaction.editReply(stripIndent`
 		**Team Pages**
 		<https://www.mondaynightpinball.com/teams/TRL>
 		<http://pinballstats.info/search/iprsearch.pl?q=TRL>

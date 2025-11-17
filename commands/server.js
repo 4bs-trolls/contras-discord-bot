@@ -5,7 +5,8 @@ module.exports = {
 		.setName('server')
 		.setDescription('Provides information about the server.'),
 	async execute(interaction) {
+		await interaction.deferReply({ ephemeral: true });
 		// interaction.guild is the object representing the Guild in which the command was run
-		await interaction.reply(`This server is ${interaction.guild.name} and has ${interaction.guild.memberCount} members.`);
+		await interaction.editReply(`This server is ${interaction.guild.name} and has ${interaction.guild.memberCount} members.`);
 	},
 };

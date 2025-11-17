@@ -1,9 +1,11 @@
 const { Events, EmbedBuilder, channelMention } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
+const MessageFormatter = require('../helpers/MessageFormatter');
 const { AttendanceStatus } = require('../helpers/AttendanceHelper');
 const AttendanceHelper = require('../helpers/AttendanceHelper');
 const DiscordUtils = require('../helpers/DiscordUtils');
 const { ROLLCALL_ACCEPT_BUTTON, ROLLCALL_DECLINE_BUTTON, SUBS_ACCEPT_BUTTON } = require('../helpers/DiscordUtils');
+const logger = require('../helpers/Logger');
 const season = process.env.SEASON;
 const subsChannelId = process.env.SUBS_CHANNEL_ID;
 const attendanceChannelId = process.env.ATTENDANCE_CHANNEL_ID;
@@ -21,11 +23,19 @@ module.exports = {
 				const command = interaction.client.commands.get(interaction.commandName);
 				// If the command does not exist, log an error and return
 				if (!command) {
-					console.error(`No command matching ${interaction.commandName} was found.`);
+					logger.error(`No command matching ${interaction.commandName} was found.`, {
+						commandName: interaction.commandName,
+						userId: interaction.user?.id,
+						guildId: interaction.guild?.id
+					});
 					return;
 				}
+
+				// Log command execution
+				await logger.logCommand(interaction.commandName, interaction.member, interaction.guild);
 				await command.execute(interaction);
 			} catch (error) {
+				logger.error(`Command execution failed: ${interaction.commandName}`, error);
 				await interaction.editReply({
 					content: 'Failed to retrieve this week\'s data\n\n ERROR: ' + error.stack,
 					ephemeral: true,
@@ -33,6 +43,9 @@ module.exports = {
 			}
 		} else if (interaction.isButton()) {
 			try {
+				// Log button click
+				await logger.logButtonClick(interaction.customId, interaction.member, interaction.guild);
+
 				// Handle statistics buttons
 				if (DiscordUtils.isStatsButton(interaction)) {
 					await handleStatsButton(interaction);
@@ -49,18 +62,36 @@ module.exports = {
 				if (interaction.customId === ROLLCALL_ACCEPT_BUTTON) {
 					await AttendanceHelper.updateStatusForPlayer(user, week, season, AttendanceStatus.ACCEPTED);
 					attendanceMessage = `**${interaction.member.nickname}** is ready to blast some balls!`;
-
 					replyMessage = 'You are in!';
+
+					logger.info(`User accepted rollcall`, {
+						userId: user.id,
+						nickname: interaction.member.nickname,
+						week,
+						season
+					});
 				} else if (interaction.customId === ROLLCALL_DECLINE_BUTTON) {
 					await AttendanceHelper.updateStatusForPlayer(user, week, season, AttendanceStatus.DECLINED);
 					attendanceMessage = `**${interaction.member.nickname}** is unable to make it this week. You might want to run \`/subs\` in ${channelMention(subsChannelId)}`;
-
 					replyMessage = 'We will find you a sub :smile:';
+
+					logger.info(`User declined rollcall`, {
+						userId: user.id,
+						nickname: interaction.member.nickname,
+						week,
+						season
+					});
 				} else if (interaction.customId === SUBS_ACCEPT_BUTTON) {
 					await AttendanceHelper.updateStatusForPlayer(user, week, season, AttendanceStatus.INTERESTED);
 					attendanceMessage = `**${interaction.member.nickname}** wants to sub! We should let them know if we are already full`;
-
 					replyMessage = 'Thanks for volunteering! We appreciate it :smile:. A captain will reach out to you if we still have spots available';
+
+					logger.info(`User volunteered to sub`, {
+						userId: user.id,
+						nickname: interaction.member.nickname,
+						week,
+						season
+					});
 				}
 				const attendance = await SupabaseHelper.getAttendance(week, season);
 				const normalizeAttendanceData = AttendanceHelper.normalizeAttendanceData(attendance, week, date, venue, team);
@@ -77,6 +108,7 @@ module.exports = {
 				await interaction.followUp({ content: replyMessage, ephemeral: true });
 			}
 			catch (error) {
+				logger.error('Failed to update attendance', error);
 				await interaction.followUp({ content: 'Failed to update attendance\n\n ERROR: ' + error.stack, ephemeral: true });
 			}
 
@@ -85,7 +117,7 @@ module.exports = {
 				const command = interaction.client.commands.get(interaction.commandName);
 				await command.autocomplete(interaction);
 			} catch (error) {
-				console.error(error);
+				logger.error('Autocomplete error', error);
 			}
 		}
 	},
@@ -116,19 +148,7 @@ async function handleStatsButton(interaction) {
 				return;
 			}
 
-			const gamesToShow = result.games.slice(0, 15);
-			const historyText = gamesToShow
-				.map((game) => `• **Week ${game.week}** - ${game.machine}: \`${game.score.toLocaleString('en-US')}\` (${game.points} pts vs ${game.opponent})`)
-				.join('\n');
-
-			const message = [
-				`**📜 Player History - ${result.playerName}**`,
-				'',
-				`**Season:** ${result.seasonId} | **Total Games:** ${result.games.length}`,
-				`**Showing:** ${gamesToShow.length} most recent games`,
-				'',
-				historyText,
-			].join('\n');
+			const message = MessageFormatter.formatPlayerHistory(result, 15);
 
 			await interaction.followUp({ content: message, ephemeral: true });
 
@@ -142,14 +162,7 @@ async function handleStatsButton(interaction) {
 				return;
 			}
 
-			const message = [
-				`**📊 Machine Average Statistics**`,
-				'',
-				`**Machine:** ${result.machine}`,
-				`**Average Score:** \`${result.averageScore.toLocaleString('en-US')}\``,
-				`**Games Played:** ${result.gamesPlayed}`,
-				`**Season:** ${result.seasonId}`,
-			].join('\n');
+			const message = MessageFormatter.formatMachineAverage(result);
 
 			await interaction.followUp({ content: message, ephemeral: true });
 
@@ -163,20 +176,7 @@ async function handleStatsButton(interaction) {
 				return;
 			}
 
-			const scoresText = result.scores
-				.map((score, index) => {
-					const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
-					return `${medal} **${score.playerName}**: \`${score.score.toLocaleString('en-US')}\` (Week ${score.week})`;
-				})
-				.join('\n');
-
-			const message = [
-				`**🏆 Machine Leaderboard - ${result.machine}**`,
-				'',
-				`**Season:** ${result.seasonId} | **Top ${result.scores.length} Scores**`,
-				'',
-				scoresText,
-			].join('\n');
+			const message = MessageFormatter.formatMachineLeaderboard(result);
 
 			await interaction.followUp({ content: message, ephemeral: true });
 
@@ -190,14 +190,7 @@ async function handleStatsButton(interaction) {
 				return;
 			}
 
-			const message = [
-				`**🎯 Team Performance - Season ${result.seasonId}**`,
-				'',
-				`**Team:** ${result.teamId}`,
-				`**Matches Played:** ${result.matchesPlayed}`,
-				`**Total Points:** ${result.totalPoints}`,
-				`**Average Per Match:** \`${result.averagePointsPerMatch}\``,
-			].join('\n');
+			const message = MessageFormatter.formatTeamPerformance(result);
 
 			await interaction.followUp({ content: message, ephemeral: true });
 
@@ -211,29 +204,19 @@ async function handleStatsButton(interaction) {
 				return;
 			}
 
-			const machinesToShow = result.machines.slice(0, 10);
-			const machinesText = machinesToShow
-				.map((machine, index) => {
-					const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
-					const plural = machine.pickCount === 1 ? 'time' : 'times';
-					return `${medal} **${machine.machineName}**: \`${machine.pickCount}\` ${plural}`;
-				})
-				.join('\n');
-
-			const message = [
-				`**🎰 Top Machine Picks**`,
-				'',
-				`**Team:** ${result.teamId} | **Season:** ${result.seasonId}`,
-				`**Showing:** Top ${machinesToShow.length} most picked machines`,
-				'',
-				machinesText,
-			].join('\n');
+			const message = MessageFormatter.formatTopPicks(result, 20);
 
 			await interaction.followUp({ content: message, ephemeral: true });
 		}
 
 	} catch (error) {
-		console.error('Error handling stats button:', error);
+		logger.error('Error handling stats button', {
+			error: error.message,
+			action,
+			entityId,
+			seasonId,
+			userId: interaction.user?.id
+		});
 		await interaction.followUp({
 			content: 'Failed to retrieve statistics: ' + error.message,
 			ephemeral: true,

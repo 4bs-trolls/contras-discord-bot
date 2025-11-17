@@ -7,6 +7,7 @@ dotenv.config();
 
 // Require the necessary discord.js classes
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
+const logger = require('./helpers/Logger');
 const token = process.env.TOKEN;
 
 // Create a new client instance
@@ -24,7 +25,7 @@ for (const file of commandFiles) {
 	if ('data' in command && 'execute' in command) {
 		client.commands.set(command.data.name, command);
 	} else {
-		console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+		logger.warn(`The command at ${filePath} is missing a required "data" or "execute" property.`, { filePath });
 	}
 }
 
@@ -41,5 +42,20 @@ for (const file of eventFiles) {
 	}
 }
 
+// Graceful shutdown handling
+process.on('SIGINT', async () => {
+	logger.info('Bot shutting down...');
+	await logger.flush();
+	process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+	logger.info('Bot shutting down...');
+	await logger.flush();
+	process.exit(0);
+});
+
 // Log in to Discord with your client's token
-client.login(token);
+client.login(token)
+	.then(() => logger.info('Bot logged in successfully'))
+	.catch(error => logger.error('Failed to login', error));

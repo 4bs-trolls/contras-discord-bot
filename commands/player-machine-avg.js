@@ -1,6 +1,9 @@
 const { SlashCommandBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
 const season = process.env.SEASON;
+const statsChannelIds = process.env.STATS_CHANNEL_ID ? process.env.STATS_CHANNEL_ID.split(',').map(id => id.trim()) : [];
+const captainStatsChannelIds = process.env.CAPTAIN_STATS_CHANNEL_ID ? process.env.CAPTAIN_STATS_CHANNEL_ID.split(',').map(id => id.trim()) : [];
+const captainRoleId = process.env.CAPTAIN_ROLE_ID;
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -23,6 +26,19 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
+			const isCaptain = captainRoleId && interaction.member?.roles.cache.has(captainRoleId);
+			const allowedChannels = isCaptain ? [...statsChannelIds, ...captainStatsChannelIds] : statsChannelIds;
+			
+			if (!allowedChannels.includes(interaction.channelId)) {
+				const channelMentions = allowedChannels.map(id => `<#${id}>`).join(', ');
+				await interaction.reply({
+					content: `This command can only be used in the following channels: ${channelMentions}.`,
+					ephemeral: true,
+				});
+				return;
+			}
+
+			await interaction.deferReply();
 			const playerId = interaction.options.getString('player_id');
 			const machineId = interaction.options.getString('machine_id');
 			const seasonId = interaction.options.getNumber('season') ?? season;
@@ -30,13 +46,15 @@ module.exports = {
 			const result = await SupabaseHelper.getPlayerMachineAverage(playerId, machineId, seasonId);
 
 			if (!result) {
-				await interaction.reply({
+				await interaction.editReply({
 					content: `No data found for player "${playerId}" on machine "${machineId}" in season ${seasonId}.`,
 					ephemeral: true,
 				});
 				return;
 			}
 
+			// Note: Player machine average uses same format as machine average, but with player name
+			// We'll create a custom message here since formatMachineAverage doesn't include player name
 			const message = [
 				`**📊 Player Machine Average**`,
 				'',
@@ -47,11 +65,11 @@ module.exports = {
 				`**Season:** ${result.seasonId}`,
 			].join('\n');
 
-			await interaction.reply({ content: message, ephemeral: true });
+			await interaction.editReply({ content: message });
 
 		} catch (error) {
 			console.error('player-machine-avg command error:', error);
-			await interaction.reply({
+			await interaction.editReply({
 				content: 'Failed to retrieve player machine statistics: ' + error.message,
 				ephemeral: true,
 			});

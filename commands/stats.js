@@ -15,6 +15,7 @@ module.exports = {
 				.setName('match-play')
 				.setDescription('Your matchplay ID')),
 	async execute(interaction) {
+		await interaction.deferReply({ ephemeral: true });
 		const userID = interaction.user.id;
 		const ifpa = interaction.options.getNumber('ifpa');
 		const matchPlay = interaction.options.getNumber('match-play');
@@ -38,7 +39,7 @@ module.exports = {
 		} else {
 			replyMessage = 'It looks like you have not set your IFPA or MatchPlay IDs, here are the team stats: http://pinballstats.info/search/iprsearch.pl?team=CDC';
 		}
-		await interaction.reply({ content: replyMessage, ephemeral: true });
+		await interaction.editReply({ content: replyMessage, ephemeral: true });
 
 		function setIDs() {
 			if (ifpa && matchPlay) {

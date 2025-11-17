@@ -1,6 +1,10 @@
 const { SlashCommandBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
+const MessageFormatter = require('../helpers/MessageFormatter');
 const season = process.env.SEASON;
+const statsChannelIds = process.env.STATS_CHANNEL_ID ? process.env.STATS_CHANNEL_ID.split(',').map(id => id.trim()) : [];
+const captainStatsChannelIds = process.env.CAPTAIN_STATS_CHANNEL_ID ? process.env.CAPTAIN_STATS_CHANNEL_ID.split(',').map(id => id.trim()) : [];
+const captainRoleId = process.env.CAPTAIN_ROLE_ID;
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -23,6 +27,19 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
+			const isCaptain = captainRoleId && interaction.member?.roles.cache.has(captainRoleId);
+			const allowedChannels = isCaptain ? [...statsChannelIds, ...captainStatsChannelIds] : statsChannelIds;
+			
+			if (!allowedChannels.includes(interaction.channelId)) {
+				const channelMentions = allowedChannels.map(id => `<#${id}>`).join(', ');
+				await interaction.reply({
+					content: `This command can only be used in the following channels: ${channelMentions}.`,
+					ephemeral: true,
+				});
+				return;
+			}
+
+			await interaction.deferReply();
 			const teamId = interaction.options.getString('team_id');
 			const seasonId = interaction.options.getNumber('season') ?? season;
 			let limit = interaction.options.getNumber('limit') || 10;
@@ -31,37 +48,20 @@ module.exports = {
 			const result = await SupabaseHelper.getTopPickedMachines(teamId, seasonId);
 
 			if (!result || !result.machines || result.machines.length === 0) {
-				await interaction.reply({
+				await interaction.editReply({
 					content: `No machine selection data found for team "${teamId}" in season ${seasonId}.`,
 					ephemeral: true,
 				});
 				return;
 			}
 
-			const machinesToShow = result.machines.slice(0, limit);
+			const message = MessageFormatter.formatTopPicks(result, limit);
 
-			const machinesText = machinesToShow
-				.map((machine, index) => {
-					const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
-					const plural = machine.pickCount === 1 ? 'time' : 'times';
-					return `${medal} **${machine.machineName}**: \`${machine.pickCount}\` ${plural}`;
-				})
-				.join('\n');
-
-			const message = [
-				`**🎰 Top Machine Picks**`,
-				'',
-				`**Team:** ${result.teamId} | **Season:** ${result.seasonId}`,
-				`**Showing:** Top ${machinesToShow.length} most picked machines`,
-				'',
-				machinesText,
-			].join('\n');
-
-			await interaction.reply({ content: message, ephemeral: true });
+			await interaction.editReply({ content: message });
 
 		} catch (error) {
 			console.error('top-picks command error:', error);
-			await interaction.reply({
+			await interaction.editReply({
 				content: 'Failed to retrieve top picks: ' + error.message,
 				ephemeral: true,
 			});
