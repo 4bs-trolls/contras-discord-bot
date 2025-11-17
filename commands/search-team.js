@@ -2,6 +2,7 @@ const { SlashCommandBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder } = re
 const SupabaseHelper = require('../helpers/SupabaseHelper');
 const DiscordUtils = require('../helpers/DiscordUtils');
 const season = process.env.SEASON;
+const statsChannelIds = process.env.STATS_CHANNEL_ID ? process.env.STATS_CHANNEL_ID.split(',').map(id => id.trim()) : [];
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -19,7 +20,16 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
-			await interaction.deferReply({ ephemeral: true });
+			if (!statsChannelIds.includes(interaction.channelId)) {
+				const channelMentions = statsChannelIds.map(id => `<#${id}>`).join(', ');
+				await interaction.reply({
+					content: `This command can only be used in the following channels: ${channelMentions}.`,
+					ephemeral: true,
+				});
+				return;
+			}
+
+			await interaction.deferReply();
 			const searchTerm = interaction.options.getString('team_name');
 			const seasonId = interaction.options.getNumber('season') ?? season;
 
@@ -57,7 +67,7 @@ module.exports = {
 
 				const buttonRow = new ActionRowBuilder().addComponents(performanceButton, topPicksButton);
 
-				await interaction.editReply({ content: message, components: [buttonRow], ephemeral: true });
+				await interaction.editReply({ content: message, components: [buttonRow] });
 			} else {
 				// Multiple teams found, display a list
 				const teamList = teams
@@ -74,7 +84,7 @@ module.exports = {
 					`• \`/top-picks <team-id>\``,
 				].join('\n');
 
-				await interaction.editReply({ content: message, ephemeral: true });
+				await interaction.editReply({ content: message });
 			}
 
 		} catch (error) {

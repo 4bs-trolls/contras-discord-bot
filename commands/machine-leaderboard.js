@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
 const MessageFormatter = require('../helpers/MessageFormatter');
 const season = process.env.SEASON;
+const statsChannelIds = process.env.STATS_CHANNEL_ID ? process.env.STATS_CHANNEL_ID.split(',').map(id => id.trim()) : [];
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -24,11 +25,21 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
-			await interaction.deferReply({ ephemeral: true });
+			if (!statsChannelIds.includes(interaction.channelId)) {
+				const channelMentions = statsChannelIds.map(id => `<#${id}>`).join(', ');
+				await interaction.reply({
+					content: `This command can only be used in the following channels: ${channelMentions}.`,
+					ephemeral: true,
+				});
+				return;
+			}
+
+			await interaction.deferReply();
 			const machineId = interaction.options.getString('machine_id');
 			const seasonId = interaction.options.getNumber('season') ?? season;
 			let limit = interaction.options.getNumber('limit') || 10;
-			limit = Math.min(limit, 25); // Cap at 25
+			// Cap at 25
+			limit = Math.min(limit, 25);
 
 			const result = await SupabaseHelper.getMachineLeaderboard(machineId, seasonId, limit);
 
@@ -42,7 +53,7 @@ module.exports = {
 
 			const message = MessageFormatter.formatMachineLeaderboard(result);
 
-			await interaction.editReply({ content: message, ephemeral: true });
+			await interaction.editReply({ content: message });
 
 		} catch (error) {
 			console.error('machine-leaderboard command error:', error);

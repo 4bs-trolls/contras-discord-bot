@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('discord.js');
 const SupabaseHelper = require('../helpers/SupabaseHelper');
 const MessageFormatter = require('../helpers/MessageFormatter');
 const season = process.env.SEASON;
+const statsChannelIds = process.env.STATS_CHANNEL_ID ? process.env.STATS_CHANNEL_ID.split(',').map(id => id.trim()) : [];
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -19,7 +20,16 @@ module.exports = {
 				.setRequired(false)),
 	async execute(interaction) {
 		try {
-			await interaction.deferReply({ ephemeral: true });
+			if (!statsChannelIds.includes(interaction.channelId)) {
+				const channelMentions = statsChannelIds.map(id => `<#${id}>`).join(', ');
+				await interaction.reply({
+					content: `This command can only be used in the following channels: ${channelMentions}.`,
+					ephemeral: true,
+				});
+				return;
+			}
+
+			await interaction.deferReply();
 			const teamId = interaction.options.getString('team_id');
 			const seasonId = interaction.options.getNumber('season') ?? season;
 
@@ -35,7 +45,7 @@ module.exports = {
 
 			const message = MessageFormatter.formatTeamPerformance(result);
 
-			await interaction.editReply({ content: message, ephemeral: true });
+			await interaction.editReply({ content: message });
 
 		} catch (error) {
 			console.error('team-performance command error:', error);
